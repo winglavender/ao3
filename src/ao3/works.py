@@ -20,10 +20,10 @@ class Work(object):
     def __init__(self, id, sess=None):
         self.id = id
 
+
         # Fetch the HTML for this work
         if sess == None:
             sess = requests.Session()
-            
         req = sess.get('https://archiveofourown.org/works/%s' % self.id)
 
         if req.status_code == 404:
@@ -75,9 +75,8 @@ class Work(object):
         #
         #     <h2 class="title heading">[title]</h2>
         #
-        # TODO: Retrieve title from restricted work
         title_tag = self._soup.find('h2', attrs={'class': 'title'})
-        return title_tag.contents[0].strip()
+        return title_tag.text.strip()
 
     @property
     def author(self):
@@ -92,7 +91,6 @@ class Work(object):
         a_tag = [t
                  for t in byline_tag.contents
                  if isinstance(t, Tag)]
-        assert len(a_tag) == 1
         return a_tag[0].contents[0].strip()
 
     @property
@@ -111,7 +109,7 @@ class Work(object):
         blockquote = summary_div.find('blockquote')
         return blockquote.renderContents().decode('utf8').strip()
 
-    def _lookup_stat(self, class_name, default=None):
+    def _lookup_stat(self, class_name):
         """Returns the value of a stat."""
         # The stats are stored in a series of divs of the form
         #
@@ -120,8 +118,6 @@ class Work(object):
         # This is a convenience method for looking up values from these divs.
         #
         dd_tag = self._soup.find('dd', attrs={'class': class_name})
-        if dd_tag is None:
-            return default
         if 'tags' in dd_tag.attrs['class']:
             return self._lookup_list_stat(dd_tag=dd_tag)
         return dd_tag.contents[0]
@@ -151,12 +147,12 @@ class Work(object):
     @property
     def rating(self):
         """The age rating for this work."""
-        return self._lookup_stat('rating', [])
+        return self._lookup_stat('rating')
 
     @property
     def warnings(self):
         """Any archive warnings on the work."""
-        value = self._lookup_stat('warning', [])
+        value = self._lookup_stat('warning')
         if value == ['No Archive Warnings Apply']:
             return []
         else:
@@ -165,32 +161,32 @@ class Work(object):
     @property
     def category(self):
         """The category of the work."""
-        return self._lookup_stat('category', [])
+        return self._lookup_stat('category')
 
     @property
     def fandoms(self):
         """The fandoms in this work."""
-        return self._lookup_stat('fandom', [])
+        return self._lookup_stat('fandom')
 
     @property
     def relationship(self):
         """The relationships in this work."""
-        return self._lookup_stat('relationship', [])
+        return self._lookup_stat('relationship')
 
     @property
     def characters(self):
         """The characters in this work."""
-        return self._lookup_stat('character', [])
+        return self._lookup_stat('character')
 
     @property
     def additional_tags(self):
         """Any additional tags on the work."""
-        return self._lookup_stat('freeform', [])
+        return self._lookup_stat('freeform')
 
     @property
     def language(self):
         """The language in which this work is published."""
-        return self._lookup_stat('language', "").strip()
+        return self._lookup_stat('language').strip()
 
     @property
     def published(self):
@@ -202,17 +198,17 @@ class Work(object):
     @property
     def words(self):
         """The number of words in this work."""
-        return int(self._lookup_stat('words', 0))
+        return int(self._lookup_stat('words'))
 
     @property
     def comments(self):
         """The number of comments on this work."""
-        return int(self._lookup_stat('comments', 0))
+        return int(self._lookup_stat('comments'))
 
     @property
     def kudos(self):
         """The number of kudos on this work."""
-        return int(self._lookup_stat('kudos', 0))
+        return int(self._lookup_stat('kudos'))
 
     @property
     def kudos_left_by(self):
@@ -266,7 +262,7 @@ class Work(object):
     @property
     def hits(self):
         """The number of hits this work has received."""
-        return int(self._lookup_stat('hits', 0))
+        return int(self._lookup_stat('hits'))
 
     def json(self, *args, **kwargs):
         """Provide a complete representation of the work in JSON.
