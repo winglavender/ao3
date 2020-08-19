@@ -91,7 +91,10 @@ class Work(object):
         a_tag = [t
                  for t in byline_tag.contents
                  if isinstance(t, Tag)]
-        return a_tag[0].contents[0].strip()
+        if len(a_tag) < 1:
+            return 'Anonymous'
+        else:
+            return a_tag[0].contents[0].strip()
 
     @property
     def summary(self):
