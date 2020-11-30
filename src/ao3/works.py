@@ -86,6 +86,8 @@ class Work(object):
         #     <h3 class="byline heading">
         #       <a href="/users/[author_name]" rel="author">[author_name]</a>
         #     </h3>
+        # 
+        # Unless the author is anonymous... in which case there is no link
         #
         byline_tag = self._soup.find('h3', attrs={'class': 'byline'})
         a_tag = [t
@@ -122,7 +124,7 @@ class Work(object):
         #
         dd_tag = self._soup.find('dd', attrs={'class': class_name})
         if 'tags' in dd_tag.attrs['class']:
-            return self._lookup_list_stat(dd_tag=dd_tag)
+            return self._lookup_list_stat(dd_tag=dd_tag)  
         return dd_tag.contents[0]
 
     def _lookup_list_stat(self, dd_tag):
@@ -196,6 +198,28 @@ class Work(object):
         """The date when this work was published."""
         date_str = self._lookup_stat('published')
         date_val = datetime.strptime(date_str, '%Y-%m-%d')
+        return date_val.date()
+
+    @property
+    def collections(self):
+        """Collections a work is part of."""
+        if self._soup.find("dd", {"class": "collections"}):
+            collection_tag = self._soup.find("dd", {"class": "collections"})
+            a_tag = [t
+                    for t in collection_tag.contents
+                    if isinstance(t, Tag)]
+            return a_tag[0].contents[0].strip()
+        else:
+            return 'error'
+
+    @property
+    def completed(self):
+        if self._soup.find("dd", {"class": "status"}):
+            date_str = self._lookup_stat('status')
+            date_val = datetime.strptime(date_str, '%Y-%m-%d')
+        else:
+            date_str = self._lookup_stat('published')
+            date_val = datetime.strptime(date_str, '%Y-%m-%d')
         return date_val.date()
 
     @property
@@ -287,8 +311,10 @@ class Work(object):
             'characters': self.characters,
             'additional_tags': self.additional_tags,
             'language': self.language,
+            'collections': self.collections,
             'stats': {
                 'published': str(self.published),
+                'completed': str(self.completed),
                 'words': self.words,
                 # TODO: chapters
                 'comments': self.comments,
