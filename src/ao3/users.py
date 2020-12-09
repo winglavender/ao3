@@ -1,5 +1,3 @@
-# -*- encoding: utf-8
-
 from datetime import datetime
 import collections
 import itertools
@@ -15,19 +13,23 @@ ReadingHistoryItem = collections.namedtuple(
 
 class User(object):
 
-    def __init__(self, username, password):
+    def __init__(self, username, cookie):
         self.username = username
         sess = requests.Session()
-        req = sess.post('https://archiveofourown.org/user_sessions', params={
-            'user_session[login]': username,
-            'user_session[password]': password,
-        })
+#        req = sess.post('https://archiveofourown.org/user_sessions', params={
+#            'user_session[login]': username,
+#            'user_session[password]': password,
+#        })
 
         # Unfortunately AO3 doesn't use HTTP status codes to communicate
         # results -- it's a 200 even if the login fails.
-        if 'Please try again' in req.text:
-            raise RuntimeError(
-                'Error logging in to AO3; is your password correct?')
+#        if 'Please try again' in req.text:
+#            raise RuntimeError(
+#                'Error logging in to AO3; is your password correct?')
+        jar=requests.cookies.RequestsCookieJar()
+        jar.set('_otwarchive_session',cookie,domain='archiveofourown.org')  #must be done separately bc the set func returns a cookie, not a jar
+        jar.set('user_credentials','1',domain='archiveofourown.org')
+        sess.cookies=jar
 
         self.sess = sess
 

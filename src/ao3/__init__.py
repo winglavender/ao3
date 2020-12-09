@@ -14,8 +14,14 @@ class AO3(object):
 
 #bypasses AO3 login to avoid plaintext credential entry
 #user can input in their current AO3 session ID
-    def set_session(self, session):
-        self.session = session
+
+    def login(self, username, cookie):
+        """Log in to the archive.
+        This allows you to access pages that are only available while
+        logged in. Does no checking if the cookie is valid.
+        The cookie should be the value for _otwarchive_session
+        """
+        self.user = User(username,cookie)
 
     def __repr__(self):
         return '%s()' % (type(self).__name__)
