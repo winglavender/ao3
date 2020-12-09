@@ -2,6 +2,7 @@ from datetime import datetime
 import collections
 import itertools
 import re
+import time
 
 from bs4 import BeautifulSoup, Tag
 import requests
@@ -29,6 +30,8 @@ class User(object):
 
         self.sess = sess
 
+        self.deleted = 0 #just for curiosity, count how many times deleted or locked works appear
+
     def __repr__(self):
         return '%s(username=%r)' % (type(self).__name__, self.username)
 
@@ -37,7 +40,7 @@ class User(object):
 
         This requires the user to turn on the Viewing History feature.
 
-        Generates a tuple of  work_id, date, numvisits,title,author,fandom,warnings,relationships,characters,freeforms,words,chapters,comments,kudos,bookmarks,hits
+        Generates a tuple of work_id,date,numvisits,title,author,fandom,warnings,relationships,characters,freeforms,words,chapters,comments,kudos,bookmarks,hits,pubdate
 
         """
         # TODO: What happens if you don't have this feature enabled?
@@ -49,12 +52,15 @@ class User(object):
 
         for page_no in itertools.count(start=1):
             req = self.sess.get(api_url % page_no)
+            print("On page: "+str(page_no))
+            print("Cumulative deleted works encountered: "+str(self.deleted))
             #if timeout, wait and try again
-
-
+            while len(req.text) < 20 and "Retry later" in req.text:
+                print("timeout... waiting 3 mins and trying again")
+                time.sleep(180) 
+                req = self.sess.get(api_url % page_no)
 
             soup = BeautifulSoup(req.text, features='html.parser')
-
             # The entries are stored in a list of the form:
             #
             #     <ol class="reading work index group">
@@ -118,19 +124,40 @@ class User(object):
                     for x in li_tag.find_all('li',attrs={'class':'freeforms'}):
                         freeforms.append(x.find('a').contents[0])
 
-                    words=li_tag.find('dd',attrs={'class','words'}).contents[0]
                     chapters=li_tag.find('dd',attrs={'class','chapters'})
                     if chapters.find('a') is not None:
                         chapters.find('a').replaceWithChildren()
                     chapters=''.join(chapters.contents)
-                    comments=li_tag.find('dd',attrs={'class','comments'}).contents[0].contents[0]
-                    kudos=li_tag.find('dd',attrs={'class','kudos'}).contents[0].contents[0]
-                    bookmarks=li_tag.find('dd',attrs={'class','bookmarks'}).contents[0].contents[0]
                     hits=li_tag.find('dd',attrs={'class','hits'}).contents[0]
 
-                    yield work_id, date, numvisits,title,author,fandom,warnings,relationships,characters,freeforms,words,chapters,comments,kudos,bookmarks,hits
+                    #sometimes the word count is blank
+                    words_tag=li_tag.find('dd',attrs={'class','words'})
+                    if len(words_tag.contents)==0:
+                        words=0
+                    else:
+                        words=words_tag.contents[0]
+                    #for comments/kudos/bookmarks, need to check if the tag exists 
+                    comments_tag=li_tag.find('dd',attrs={'class','comments'})
+                    if comments_tag is not None:
+                        comments=comments_tag.contents[0].contents[0]
+                    else:
+                        comments=0
+                    kudos_tag=li_tag.find('dd',attrs={'class','kudos'})
+                    if kudos_tag is not None:
+                        kudos=kudos_tag.contents[0].contents[0]
+                    else:
+                        kudos=0
+                    bookmarks_tag=li_tag.find('dd',attrs={'class','bookmarks'})
+                    if bookmarks_tag is not None:
+                        bookmarks=bookmarks_tag.contents[0].contents[0]
+                    else:
+                        bookmarks=0
 
-                except KeyError:
+                    pubdate_str=li_tag.find('p',attrs={'class','datetime'}).contents[0]
+                    pubdate = datetime.strptime(pubdate_str, '%d %b %Y').date()
+                    yield work_id,date,numvisits,title,author,fandom,warnings,relationships,characters,freeforms,words,chapters,comments,kudos,bookmarks,hits,pubdate
+
+                except (KeyError, AttributeError) as e:
                     # A deleted work shows up as
                     #
                     #      <li class="deleted reading work blurb group">
@@ -138,6 +165,12 @@ class User(object):
                     # There's nothing that we can do about that, so just skip
                     # over it.
                     if 'deleted' in li_tag.attrs['class']:
+                        self.deleted+=1
+                        pass
+                    # A locked work shows up with
+                    #       <div class="mystery header picture module">
+                    elif li_tag.find('div',attrs={'class','mystery'}) is not None:
+                        self.deleted+=1
                         pass
                     else:
                         raise
