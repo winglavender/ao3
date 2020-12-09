@@ -7,10 +7,6 @@ from bs4 import BeautifulSoup, Tag
 import requests
 
 
-ReadingHistoryItem = collections.namedtuple(
-    'ReadingHistoryItem', ['work_id', 'last_read'])
-
-
 class User(object):
 
     def __init__(self, username, cookie):
@@ -41,8 +37,8 @@ class User(object):
 
         This requires the user to turn on the Viewing History feature.
 
-        This generates a series of ``ReadingHistoryItem`` instances,
-        a 2-tuple ``(work_id, last_read)``.
+        Generates a tuple of  work_id, date, numvisits,title,author,fandom,warnings,relationships,characters,freeforms,words,chapters,comments,kudos,bookmarks,hits
+
         """
         # TODO: What happens if you don't have this feature enabled?
 
@@ -53,6 +49,10 @@ class User(object):
 
         for page_no in itertools.count(start=1):
             req = self.sess.get(api_url % page_no)
+            #if timeout, wait and try again
+
+
+
             soup = BeautifulSoup(req.text, features='html.parser')
 
             # The entries are stored in a list of the form:
@@ -87,8 +87,49 @@ class User(object):
                         r'[0-9]{1,2} [A-Z][a-z]+ [0-9]{4}',
                         h4_tag.contents[2]).group(0)
                     date = datetime.strptime(date_str, '%d %b %Y').date()
+                    
+                    if "Visited once" in h4_tag.contents[2]:
+                        numvisits='1' #keeping as strings bc intend to print this to a file
+                    else:
+                        numvisits=re.search(r'Visited (\d*) times',h4_tag.contents[2]).group(1)
 
-                    yield work_id, date
+                    title=li_tag.find('h4', attrs={'class':'heading'}).find('a').contents[0]
+
+                    author=[] #this is if there's multiple authors
+                    author_tag=li_tag.find('h4', attrs={'class':'heading'})
+                    for x in author_tag.find_all('a',attrs={'rel':'author'}):
+                        author.append(x.contents[0])
+
+                    fandom=[]
+                    fandom_tag=li_tag.find('h5',attrs={'class':'fandoms'})
+                    for x in fandom_tag.find_all('a',attrs={'class':'tag'}):
+                        fandom.append(x.contents[0])
+
+                    warnings=[]
+                    for x in li_tag.find_all('li',attrs={'class':'warnings'}):
+                        warnings.append(x.find('a').contents[0])
+                    relationships=[]
+                    for x in li_tag.find_all('li',attrs={'class':'relationships'}):
+                        relationships.append(x.find('a').contents[0])
+                    characters=[]
+                    for x in li_tag.find_all('li',attrs={'class':'characters'}):
+                        characters.append(x.find('a').contents[0])
+                    freeforms=[]
+                    for x in li_tag.find_all('li',attrs={'class':'freeforms'}):
+                        freeforms.append(x.find('a').contents[0])
+
+                    words=li_tag.find('dd',attrs={'class','words'}).contents[0]
+                    chapters=li_tag.find('dd',attrs={'class','chapters'})
+                    if chapters.find('a') is not None:
+                        chapters.find('a').replaceWithChildren()
+                    chapters=''.join(chapters.contents)
+                    comments=li_tag.find('dd',attrs={'class','comments'}).contents[0].contents[0]
+                    kudos=li_tag.find('dd',attrs={'class','kudos'}).contents[0].contents[0]
+                    bookmarks=li_tag.find('dd',attrs={'class','bookmarks'}).contents[0].contents[0]
+                    hits=li_tag.find('dd',attrs={'class','hits'}).contents[0]
+
+                    yield work_id, date, numvisits,title,author,fandom,warnings,relationships,characters,freeforms,words,chapters,comments,kudos,bookmarks,hits
+
                 except KeyError:
                     # A deleted work shows up as
                     #
