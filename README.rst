@@ -1,12 +1,3 @@
-**Maintenance note, 19 July 2020:** This isn't actively maintained, and it hasn't been for a long time.
-I created this library/repo to accompany a `blog post I wrote in 2018 <https://alexwlchan.net/2017/01/scrape-logged-in-ao3/>`_, but I haven't looked at it much since then and I don't have much time for open source these days.
-
-FWIW, if I were to work on this again, I'd start by decoupling the HTML parsing and the I/O logic (see my PyCon UK talk about `sans I/O programming <https://alexwlchan.net/2019/10/sans-io-programming/>`_).
-
-I hope this repo serves as a useful pointer, but don't expect updates any time soon.
-
-----
-
 ao3.py
 ======
 
@@ -28,16 +19,6 @@ seems to work most of the time.
 If/when we get the proper API, I'd drop this in a heartbeat and do it
 properly.
 
-Installation
-************
-
-Install using pip:
-
-.. code-block:: console
-
-   $ pip install ao3
-
-I'm trying to support Python 2.7, Python 3.3+ and PyPy.
 
 Usage
 *****
@@ -153,55 +134,13 @@ available to the public:
 
 .. code-block:: pycon
 
-   >>> api.login('username', 'password')
+   >>> api.login('username', 'cookie')
+   
+
 
 If you have Viewing History enabled, you can get a list of work IDs from 
-that history, like so:
+that history.
 
-.. code-block:: pycon
-
-   >>> for entry in api.user.reading_history():
-   ...     print(entry.work_id)
-   ...
-   '123'
-   '456'
-   '789'
-   # and so on
-
-You can enable Viewing History in the settings pane.
-
-One interesting side effect of this is that you can use it to get a list
-of works where you've left kudos:
-
-.. code-block:: python
-
-   from ao3 import AO3
-   from ao3.works import RestrictedWork
-
-   api = AO3()
-   api.login('username', 'password')
-
-   for entry in api.user.reading_history():
-       try:
-           work = api.work(id=entry.work_id)
-       except RestrictedWork:
-           continue
-       print(work.url + '... ', end='')
-       if api.user.username in work.kudos_left_by:
-           print('yes')
-       else:
-           print('no')
-
-Warning: this is `very` slow.  It has to go back and load a page for everything
-you've ever read.  Don't use this if you're on a connection with limited
-bandwidth.
-
-This doesn't include "restricted" works -- works that require you to be a
-logged-in user to see them.
-
-(The reading page tells you when you last read something.  If you cached the
-results, and then subsequent runs only rechecked fics you'd read since the
-last run, you could make this quite efficient.  Exercise for the reader.)
 
 Looking up your bookmarks
 -------------------------
