@@ -99,59 +99,60 @@ class User(object):
                     else:
                         numvisits=re.search(r'Visited (\d*) times',h4_tag.contents[2]).group(1)
 
-                    title=li_tag.find('h4', attrs={'class':'heading'}).find('a').contents[0]
+                    #cast all the beautifulsoup navigablestrings to strings
+                    title=str(li_tag.find('h4', attrs={'class':'heading'}).find('a').contents[0])
 
                     author=[] #this is if there's multiple authors
                     author_tag=li_tag.find('h4', attrs={'class':'heading'})
                     for x in author_tag.find_all('a',attrs={'rel':'author'}):
-                        author.append(x.contents[0])
+                        author.append(str(x.contents[0]))
 
                     fandom=[]
                     fandom_tag=li_tag.find('h5',attrs={'class':'fandoms'})
                     for x in fandom_tag.find_all('a',attrs={'class':'tag'}):
-                        fandom.append(x.contents[0])
+                        fandom.append(str(x.contents[0]))
 
                     warnings=[]
                     for x in li_tag.find_all('li',attrs={'class':'warnings'}):
-                        warnings.append(x.find('a').contents[0])
+                        warnings.append(str(x.find('a').contents[0]))
                     relationships=[]
                     for x in li_tag.find_all('li',attrs={'class':'relationships'}):
-                        relationships.append(x.find('a').contents[0])
+                        relationships.append(str(x.find('a').contents[0]))
                     characters=[]
                     for x in li_tag.find_all('li',attrs={'class':'characters'}):
-                        characters.append(x.find('a').contents[0])
+                        characters.append(str(x.find('a').contents[0]))
                     freeforms=[]
                     for x in li_tag.find_all('li',attrs={'class':'freeforms'}):
-                        freeforms.append(x.find('a').contents[0])
+                        freeforms.append(str(x.find('a').contents[0]))
 
                     chapters=li_tag.find('dd',attrs={'class','chapters'})
                     if chapters.find('a') is not None:
                         chapters.find('a').replaceWithChildren()
                     chapters=''.join(chapters.contents)
-                    hits=li_tag.find('dd',attrs={'class','hits'}).contents[0]
+                    hits=str(li_tag.find('dd',attrs={'class','hits'}).contents[0])
 
                     #sometimes the word count is blank
                     words_tag=li_tag.find('dd',attrs={'class','words'})
                     if len(words_tag.contents)==0:
-                        words=0
+                        words='0'
                     else:
-                        words=words_tag.contents[0]
+                        words=str(words_tag.contents[0])
                     #for comments/kudos/bookmarks, need to check if the tag exists 
                     comments_tag=li_tag.find('dd',attrs={'class','comments'})
                     if comments_tag is not None:
-                        comments=comments_tag.contents[0].contents[0]
+                        comments=str(comments_tag.contents[0].contents[0])
                     else:
-                        comments=0
+                        comments='0'
                     kudos_tag=li_tag.find('dd',attrs={'class','kudos'})
                     if kudos_tag is not None:
-                        kudos=kudos_tag.contents[0].contents[0]
+                        kudos=str(kudos_tag.contents[0].contents[0])
                     else:
-                        kudos=0
+                        kudos='0'
                     bookmarks_tag=li_tag.find('dd',attrs={'class','bookmarks'})
                     if bookmarks_tag is not None:
-                        bookmarks=bookmarks_tag.contents[0].contents[0]
+                        bookmarks=str(bookmarks_tag.contents[0].contents[0])
                     else:
-                        bookmarks=0
+                        bookmarks='0'
 
                     pubdate_str=li_tag.find('p',attrs={'class','datetime'}).contents[0]
                     pubdate = datetime.strptime(pubdate_str, '%d %b %Y').date()
