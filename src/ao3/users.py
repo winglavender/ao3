@@ -106,6 +106,7 @@ class User(object):
                     author_tag=li_tag.find('h4', attrs={'class':'heading'})
                     for x in author_tag.find_all('a',attrs={'rel':'author'}):
                         author.append(str(x.contents[0]))
+                    #TODO: known bug: if Anonymous author (no link), should not take the contents, since it'll be blank
 
                     fandom=[]
                     fandom_tag=li_tag.find('h5',attrs={'class':'fandoms'})
