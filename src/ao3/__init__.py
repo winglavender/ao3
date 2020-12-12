@@ -22,6 +22,7 @@ class AO3(object):
         The cookie should be the value for _otwarchive_session
         """
         self.user = User(username,cookie)
+        self.session = self.user.sess
 
     def __repr__(self):
         return '%s()' % (type(self).__name__)
