@@ -6,6 +6,8 @@ This Python package provides a scripted interface to some of the data on
 
 It is **not** an official API.
 
+This package no longer is compatible with Py2
+
 Motivation
 **********
 
@@ -29,6 +31,26 @@ Create an API instance:
 
    >>> from ao3 import AO3, 
    >>> api = AO3()
+   
+Logging into your account
+--------------------------
+
+Enter the contents of your _otwarchive_session cookie and username
+
+.. code-block:: pycon
+
+   >>> api.login('USERNAME',"COOKIE CONTENTS')
+    
+If you have Viewing History enabled, you can get a list of works from 
+that history.
+
+.. code-block:: pycon
+
+   >>> rh=api.user.reading_history()
+   >>> next(rh)
+   
+This returns a tuple with information about the next work in your history
+
 
 Looking up information about a work
 -----------------------------------
@@ -125,21 +147,6 @@ for easy export/passing into other places:
 
    >>> work.json()
    '{"rating": ["Teen And Up Audiences"], "fandoms": ["Anthropomorfic - Fandom"], "characters": ["Pinboard", "Delicious - Character", "Diigo - Character"], "language": "English", "additional_tags": ["crackfic", "Meta", "so very not my usual thing"], "warnings": [], "id": "258626", "stats": {"hits": 43037, "words": 605, "bookmarks": 99, "comments": 122, "published": "2011-09-29", "kudos": 1238}, "author": "ambyr", "category": ["F/M"], "title": "The Morning After", "relationship": ["Pinboard/Fandom"], "summary": "<p>Delicious just can\'t understand why it\'s the shy, quiet ones who get all the girls.</p>"}'
-
-Looking up your account
------------------------
-
-If you have an account on AO3, you can log in to access pages that aren't
-available to the public:
-
-.. code-block:: pycon
-
-   >>> api.login('username', 'cookie')
-   
-
-
-If you have Viewing History enabled, you can get a list of work IDs from 
-that history.
 
 
 Looking up your bookmarks
