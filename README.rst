@@ -50,7 +50,7 @@ Enter the contents of your _otwarchive_session cookie and username
 
 .. code-block:: pycon
 
-   >>> api.login('USERNAME',"COOKIE CONTENTS')
+   >>> api.login('USERNAME',"COOKIE CONTENTS")
     
 If you have Viewing History enabled, you can get a list of works from 
 that history.
