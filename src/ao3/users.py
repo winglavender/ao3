@@ -10,22 +10,24 @@ import requests
 
 class User(object):
 
+#   instead of passing plaintext passwords, pass the contents of the _otwarchive_session cookie!
     def __init__(self, username, cookie):
         self.username = username
         sess = requests.Session()
+#       previously, used password
 #        req = sess.post('https://archiveofourown.org/user_sessions', params={
 #            'user_session[login]': username,
 #            'user_session[password]': password,
 #        })
-
         # Unfortunately AO3 doesn't use HTTP status codes to communicate
         # results -- it's a 200 even if the login fails.
 #        if 'Please try again' in req.text:
 #            raise RuntimeError(
 #                'Error logging in to AO3; is your password correct?')
+
         jar=requests.cookies.RequestsCookieJar()
         jar.set('_otwarchive_session',cookie,domain='archiveofourown.org')  #must be done separately bc the set func returns a cookie, not a jar
-        jar.set('user_credentials','1',domain='archiveofourown.org')
+        jar.set('user_credentials','1',domain='archiveofourown.org') #AO3 requires this cookie to be set
         sess.cookies=jar
 
         self.sess = sess
@@ -41,9 +43,11 @@ class User(object):
         This requires the user to turn on the Viewing History feature.
 
         Generates a tuple of work_id,date,numvisits,title,author,fandom,warnings,relationships,characters,freeforms,words,chapters,comments,kudos,bookmarks,hits,pubdate
+        Note that the dates are datetime objects, but everything else is either a list of strings (if multiple values) or a string. 
 
         """
         # TODO: What happens if you don't have this feature enabled?
+        # TODO: probably this should be returned as a structured object instead of this giant tuple
 
         # URL for the user's reading history page
         api_url = (
@@ -54,6 +58,7 @@ class User(object):
             req = self.sess.get(api_url % page_no)
             print("On page: "+str(page_no))
             print("Cumulative deleted works encountered: "+str(self.deleted))
+            
             #if timeout, wait and try again
             while len(req.text) < 20 and "Retry later" in req.text:
                 print("timeout... waiting 3 mins and trying again")
@@ -95,7 +100,7 @@ class User(object):
                     date = datetime.strptime(date_str, '%d %b %Y').date()
                     
                     if "Visited once" in h4_tag.contents[2]:
-                        numvisits='1' #keeping as strings bc intend to print this to a file
+                        numvisits='1' #TODO: probably want to change these int values to ints instead of strings...
                     else:
                         numvisits=re.search(r'Visited (\d*) times',h4_tag.contents[2]).group(1)
 
@@ -106,7 +111,8 @@ class User(object):
                     author_tag=li_tag.find('h4', attrs={'class':'heading'})
                     for x in author_tag.find_all('a',attrs={'rel':'author'}):
                         author.append(str(x.contents[0]))
-                    #TODO: known bug: if Anonymous author (no link), should not take the contents, since it'll be blank
+                    #TODO: if Anonymous author (no link), should not take the contents, since it'll be blank
+                    #Probably something similar to the chapters checker
 
                     fandom=[]
                     fandom_tag=li_tag.find('h5',attrs={'class':'fandoms'})
@@ -126,11 +132,12 @@ class User(object):
                     for x in li_tag.find_all('li',attrs={'class':'freeforms'}):
                         freeforms.append(str(x.find('a').contents[0]))
 
+                    #this is longer bc sometimes chapters are a link and sometimes not, so need to normalize
                     chapters=li_tag.find('dd',attrs={'class','chapters'})
                     if chapters.find('a') is not None:
                         chapters.find('a').replaceWithChildren()
                     chapters=''.join(chapters.contents)
-                    hits=str(li_tag.find('dd',attrs={'class','hits'}).contents[0])
+                    hits=str(li_tag.find('dd',attrs={'class','hits'}).contents[0]) 
 
                     #sometimes the word count is blank
                     words_tag=li_tag.find('dd',attrs={'class','words'})
@@ -138,7 +145,8 @@ class User(object):
                         words='0'
                     else:
                         words=str(words_tag.contents[0])
-                    #for comments/kudos/bookmarks, need to check if the tag exists 
+                        
+                    #for comments/kudos/bookmarks, need to check if the tag exists, bc if there are no comments etc it will not exist
                     comments_tag=li_tag.find('dd',attrs={'class','comments'})
                     if comments_tag is not None:
                         comments=str(comments_tag.contents[0].contents[0])
