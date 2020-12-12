@@ -1,35 +1,38 @@
-# -*- encoding: utf-8
-
 from datetime import datetime
 import collections
 import itertools
 import re
+import time
 
 from bs4 import BeautifulSoup, Tag
 import requests
 
 
-ReadingHistoryItem = collections.namedtuple(
-    'ReadingHistoryItem', ['work_id', 'last_read'])
-
-
 class User(object):
 
-    def __init__(self, username, password):
+#   instead of passing plaintext passwords, pass the contents of the _otwarchive_session cookie!
+    def __init__(self, username, cookie):
         self.username = username
         sess = requests.Session()
-        req = sess.post('https://archiveofourown.org/user_sessions', params={
-            'user_session[login]': username,
-            'user_session[password]': password,
-        })
-
+#       previously, used password
+#        req = sess.post('https://archiveofourown.org/user_sessions', params={
+#            'user_session[login]': username,
+#            'user_session[password]': password,
+#        })
         # Unfortunately AO3 doesn't use HTTP status codes to communicate
         # results -- it's a 200 even if the login fails.
-        if 'Please try again' in req.text:
-            raise RuntimeError(
-                'Error logging in to AO3; is your password correct?')
+#        if 'Please try again' in req.text:
+#            raise RuntimeError(
+#                'Error logging in to AO3; is your password correct?')
+
+        jar=requests.cookies.RequestsCookieJar()
+        jar.set('_otwarchive_session',cookie,domain='archiveofourown.org')  #must be done separately bc the set func returns a cookie, not a jar
+        jar.set('user_credentials','1',domain='archiveofourown.org') #AO3 requires this cookie to be set
+        sess.cookies=jar
 
         self.sess = sess
+
+        self.deleted = 0 #just for curiosity, count how many times deleted or locked works appear
 
     def __repr__(self):
         return '%s(username=%r)' % (type(self).__name__, self.username)
@@ -39,10 +42,12 @@ class User(object):
 
         This requires the user to turn on the Viewing History feature.
 
-        This generates a series of ``ReadingHistoryItem`` instances,
-        a 2-tuple ``(work_id, last_read)``.
+        Generates a tuple of work_id,date,numvisits,title,author,fandom,warnings,relationships,characters,freeforms,words,chapters,comments,kudos,bookmarks,hits,pubdate
+        Note that the dates are datetime objects, but everything else is either a list of strings (if multiple values) or a string. 
+
         """
         # TODO: What happens if you don't have this feature enabled?
+        # TODO: probably this should be returned as a structured object instead of this giant tuple
 
         # URL for the user's reading history page
         api_url = (
@@ -51,8 +56,16 @@ class User(object):
 
         for page_no in itertools.count(start=1):
             req = self.sess.get(api_url % page_no)
-            soup = BeautifulSoup(req.text, features='html.parser')
+            print("On page: "+str(page_no))
+            print("Cumulative deleted works encountered: "+str(self.deleted))
+            
+            #if timeout, wait and try again
+            while len(req.text) < 20 and "Retry later" in req.text:
+                print("timeout... waiting 3 mins and trying again")
+                time.sleep(180) 
+                req = self.sess.get(api_url % page_no)
 
+            soup = BeautifulSoup(req.text, features='html.parser')
             # The entries are stored in a list of the form:
             #
             #     <ol class="reading work index group">
@@ -85,9 +98,76 @@ class User(object):
                         r'[0-9]{1,2} [A-Z][a-z]+ [0-9]{4}',
                         h4_tag.contents[2]).group(0)
                     date = datetime.strptime(date_str, '%d %b %Y').date()
+                    
+                    if "Visited once" in h4_tag.contents[2]:
+                        numvisits='1' #TODO: probably want to change these int values to ints instead of strings...
+                    else:
+                        numvisits=re.search(r'Visited (\d*) times',h4_tag.contents[2]).group(1)
 
-                    yield work_id, date
-                except KeyError:
+                    #cast all the beautifulsoup navigablestrings to strings
+                    title=str(li_tag.find('h4', attrs={'class':'heading'}).find('a').contents[0])
+
+                    author=[] #this is if there's multiple authors
+                    author_tag=li_tag.find('h4', attrs={'class':'heading'})
+                    for x in author_tag.find_all('a',attrs={'rel':'author'}):
+                        author.append(str(x.contents[0]))
+                    #TODO: if Anonymous author (no link), should not take the contents, since it'll be blank
+                    #Probably something similar to the chapters checker
+
+                    fandom=[]
+                    fandom_tag=li_tag.find('h5',attrs={'class':'fandoms'})
+                    for x in fandom_tag.find_all('a',attrs={'class':'tag'}):
+                        fandom.append(str(x.contents[0]))
+
+                    warnings=[]
+                    for x in li_tag.find_all('li',attrs={'class':'warnings'}):
+                        warnings.append(str(x.find('a').contents[0]))
+                    relationships=[]
+                    for x in li_tag.find_all('li',attrs={'class':'relationships'}):
+                        relationships.append(str(x.find('a').contents[0]))
+                    characters=[]
+                    for x in li_tag.find_all('li',attrs={'class':'characters'}):
+                        characters.append(str(x.find('a').contents[0]))
+                    freeforms=[]
+                    for x in li_tag.find_all('li',attrs={'class':'freeforms'}):
+                        freeforms.append(str(x.find('a').contents[0]))
+
+                    #this is longer bc sometimes chapters are a link and sometimes not, so need to normalize
+                    chapters=li_tag.find('dd',attrs={'class','chapters'})
+                    if chapters.find('a') is not None:
+                        chapters.find('a').replaceWithChildren()
+                    chapters=''.join(chapters.contents)
+                    hits=str(li_tag.find('dd',attrs={'class','hits'}).contents[0]) 
+
+                    #sometimes the word count is blank
+                    words_tag=li_tag.find('dd',attrs={'class','words'})
+                    if len(words_tag.contents)==0:
+                        words='0'
+                    else:
+                        words=str(words_tag.contents[0])
+                        
+                    #for comments/kudos/bookmarks, need to check if the tag exists, bc if there are no comments etc it will not exist
+                    comments_tag=li_tag.find('dd',attrs={'class','comments'})
+                    if comments_tag is not None:
+                        comments=str(comments_tag.contents[0].contents[0])
+                    else:
+                        comments='0'
+                    kudos_tag=li_tag.find('dd',attrs={'class','kudos'})
+                    if kudos_tag is not None:
+                        kudos=str(kudos_tag.contents[0].contents[0])
+                    else:
+                        kudos='0'
+                    bookmarks_tag=li_tag.find('dd',attrs={'class','bookmarks'})
+                    if bookmarks_tag is not None:
+                        bookmarks=str(bookmarks_tag.contents[0].contents[0])
+                    else:
+                        bookmarks='0'
+
+                    pubdate_str=li_tag.find('p',attrs={'class','datetime'}).contents[0]
+                    pubdate = datetime.strptime(pubdate_str, '%d %b %Y').date()
+                    yield work_id,date,numvisits,title,author,fandom,warnings,relationships,characters,freeforms,words,chapters,comments,kudos,bookmarks,hits,pubdate
+
+                except (KeyError, AttributeError) as e:
                     # A deleted work shows up as
                     #
                     #      <li class="deleted reading work blurb group">
@@ -95,6 +175,12 @@ class User(object):
                     # There's nothing that we can do about that, so just skip
                     # over it.
                     if 'deleted' in li_tag.attrs['class']:
+                        self.deleted+=1
+                        pass
+                    # A locked work shows up with
+                    #       <div class="mystery header picture module">
+                    elif li_tag.find('div',attrs={'class','mystery'}) is not None:
+                        self.deleted+=1
                         pass
                     else:
                         raise

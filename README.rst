@@ -1,12 +1,3 @@
-**Maintenance note, 19 July 2020:** This isn't actively maintained, and it hasn't been for a long time.
-I created this library/repo to accompany a `blog post I wrote in 2018 <https://alexwlchan.net/2017/01/scrape-logged-in-ao3/>`_, but I haven't looked at it much since then and I don't have much time for open source these days.
-
-FWIW, if I were to work on this again, I'd start by decoupling the HTML parsing and the I/O logic (see my PyCon UK talk about `sans I/O programming <https://alexwlchan.net/2019/10/sans-io-programming/>`_).
-
-I hope this repo serves as a useful pointer, but don't expect updates any time soon.
-
-----
-
 ao3.py
 ======
 
@@ -14,6 +5,8 @@ This Python package provides a scripted interface to some of the data on
 `AO3 <https://archiveofourown.org/>`_ (the Archive of Our Own).
 
 It is **not** an official API.
+
+This package no longer is compatible with Py2
 
 Motivation
 **********
@@ -28,16 +21,6 @@ seems to work most of the time.
 If/when we get the proper API, I'd drop this in a heartbeat and do it
 properly.
 
-Installation
-************
-
-Install using pip:
-
-.. code-block:: console
-
-   $ pip install ao3
-
-I'm trying to support Python 2.7, Python 3.3+ and PyPy.
 
 Usage
 *****
@@ -48,6 +31,26 @@ Create an API instance:
 
    >>> from ao3 import AO3, 
    >>> api = AO3()
+   
+Logging into your account
+--------------------------
+
+Enter the contents of your _otwarchive_session cookie and username
+
+.. code-block:: pycon
+
+   >>> api.login('USERNAME',"COOKIE CONTENTS')
+    
+If you have Viewing History enabled, you can get a list of works from 
+that history.
+
+.. code-block:: pycon
+
+   >>> rh=api.user.reading_history()
+   >>> next(rh)
+   
+This returns a tuple with information about the next work in your history
+
 
 Looking up information about a work
 -----------------------------------
@@ -145,63 +148,6 @@ for easy export/passing into other places:
    >>> work.json()
    '{"rating": ["Teen And Up Audiences"], "fandoms": ["Anthropomorfic - Fandom"], "characters": ["Pinboard", "Delicious - Character", "Diigo - Character"], "language": "English", "additional_tags": ["crackfic", "Meta", "so very not my usual thing"], "warnings": [], "id": "258626", "stats": {"hits": 43037, "words": 605, "bookmarks": 99, "comments": 122, "published": "2011-09-29", "kudos": 1238}, "author": "ambyr", "category": ["F/M"], "title": "The Morning After", "relationship": ["Pinboard/Fandom"], "summary": "<p>Delicious just can\'t understand why it\'s the shy, quiet ones who get all the girls.</p>"}'
 
-Looking up your account
------------------------
-
-If you have an account on AO3, you can log in to access pages that aren't
-available to the public:
-
-.. code-block:: pycon
-
-   >>> api.login('username', 'password')
-
-If you have Viewing History enabled, you can get a list of work IDs from 
-that history, like so:
-
-.. code-block:: pycon
-
-   >>> for entry in api.user.reading_history():
-   ...     print(entry.work_id)
-   ...
-   '123'
-   '456'
-   '789'
-   # and so on
-
-You can enable Viewing History in the settings pane.
-
-One interesting side effect of this is that you can use it to get a list
-of works where you've left kudos:
-
-.. code-block:: python
-
-   from ao3 import AO3
-   from ao3.works import RestrictedWork
-
-   api = AO3()
-   api.login('username', 'password')
-
-   for entry in api.user.reading_history():
-       try:
-           work = api.work(id=entry.work_id)
-       except RestrictedWork:
-           continue
-       print(work.url + '... ', end='')
-       if api.user.username in work.kudos_left_by:
-           print('yes')
-       else:
-           print('no')
-
-Warning: this is `very` slow.  It has to go back and load a page for everything
-you've ever read.  Don't use this if you're on a connection with limited
-bandwidth.
-
-This doesn't include "restricted" works -- works that require you to be a
-logged-in user to see them.
-
-(The reading page tells you when you last read something.  If you cached the
-results, and then subsequent runs only rechecked fics you'd read since the
-last run, you could make this quite efficient.  Exercise for the reader.)
 
 Looking up your bookmarks
 -------------------------
