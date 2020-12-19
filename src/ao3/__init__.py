@@ -4,6 +4,7 @@ import requests
 from . import utils
 from .users import User
 from .works import Work
+from .comments import Comments
 
 class AO3(object):
     """A scraper for the Archive of Our Own (AO3)."""
@@ -34,3 +35,8 @@ class AO3(object):
             e.g. the work ID of http://archiveofourown.org/works/1234 is 1234.
         """
         return Work(id=id, sess=self.session)
+
+
+    def comments(self, id):
+        return Comments(id=id,sess=self.session)
+
