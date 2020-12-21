@@ -87,6 +87,9 @@ class Comments(object):
                     #deleted comment only has text
                     if "Previous comment deleted" in str(li_tag):
                         pass 
+                    elif "more comments in this thread" in str(li_tag):
+                    #if more comments in thread, just print out the url for now. the html on the comment page is the same, so it should be easy to follow the link and yield those comments, but this is a quick fix
+                        print("archiveofourown.org/"+li_tag.find('a').get('href'))
                     else:
                         raise
 
