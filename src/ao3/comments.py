@@ -16,7 +16,6 @@ class WorkNotFound(Exception):
 class RestrictedWork(Exception):
     pass
 
-
 class Comments(object):
 
     def __init__(self, id, sess=None):
@@ -48,10 +47,11 @@ class Comments(object):
         year=str(li_tag.find('span',attrs={'class':'year'}).contents[0])
         time=str(li_tag.find('span',attrs={'class':'time'}).contents[0])
         timezone=str(li_tag.find('abbr',attrs={'class':'timezone'}).contents[0])
+        date_time=date+' '+month+' '+year+' '+time
     
         content=str(li_tag.find('blockquote',attrs={'class':'userstuff'}).contents[0])
     
-        return user,anon,toplevel,date,month,year,time,timezone#,content
+        return user,anon,toplevel,date_time,timezone,content
 
     def recursemorecomments(self,url):
         mc_req = self.sess.get(url)
@@ -68,7 +68,7 @@ class Comments(object):
 
     def comment_contents(self):
         """Generator for next comment on the work.
-        Generates a tuple of user, anon (boolean value -- true if anon), toplevel (boolean value - true if toplevel comment), day of month, month, year, time, timezone, content
+        Generates a tuple of user, anon (boolean value -- true if anon), toplevel (boolean value - true if toplevel comment), (day of month, month, year, time), timezone, content
         Unless otherwise specified, all values are returned as strings
         Returned datetime is for the time the comment was made, not the edited time
 
@@ -98,7 +98,12 @@ class Comments(object):
             soup = BeautifulSoup(req.text, features='html.parser')
             for li_tag in soup.findAll('li',attrs={'class': 'comment'}):
                 try:
+<<<<<<< HEAD
                     yield self.parsecomment(li_tag)
+=======
+                    yield parsecomment(li_tag)
+
+>>>>>>> 93330be5ba884db3eb99f79ef470af5025f15748
                 except AttributeError:
                     #deleted comment only has text
                     if "Previous comment deleted" in str(li_tag):

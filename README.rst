@@ -1,12 +1,22 @@
 ao3.py
 ======
 
+This is my fork of alexwlchan's ao3 package, which is not actively maintained. Contributors to this 
+include etothepii and superborb. I actively maintain this fork and welcome contributions.
+
+A departure from the original package is that this one uses your username and cookie,
+rather than plaintext password entry. 
+
+- verity (ladyofthelog)
+
+**********
+
 This Python package provides a scripted interface to some of the data on
 `AO3 <https://archiveofourown.org/>`_ (the Archive of Our Own).
 
 It is **not** an official API.
 
-This package no longer is compatible with Py2
+This package no longer is compatible with Py2.
 
 Motivation
 **********
@@ -21,6 +31,7 @@ seems to work most of the time.
 If/when we get the proper API, I'd drop this in a heartbeat and do it
 properly.
 
+- alexwlchan
 
 Usage
 *****
