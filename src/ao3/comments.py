@@ -16,31 +16,6 @@ class WorkNotFound(Exception):
 class RestrictedWork(Exception):
     pass
 
-def parsecomment(li_tag):
-    h4_tag = li_tag.find('h4',attrs={'class':'heading'})
-    if h4_tag.find('a') is None:
-        user=str(h4_tag.contents[0].strip())
-        anon=True
-    else:
-        user=str(h4_tag.find('a').contents[0])
-        anon=False
-
-    ul_tag = li_tag.find('ul',attrs={'class':'actions'})
-    if "Parent Thread" in str(ul_tag): #this is possibly the laziest way to search but hey, it works
-        toplevel=False
-    else:
-        toplevel=True
-
-    date=str(li_tag.find('span',attrs={'class':'date'}).contents[0])
-    month=str(li_tag.find('abbr',attrs={'class':'month'}).contents[0])
-    year=str(li_tag.find('span',attrs={'class':'year'}).contents[0])
-    time=str(li_tag.find('span',attrs={'class':'time'}).contents[0])
-    timezone=str(li_tag.find('abbr',attrs={'class':'timezone'}).contents[0])
-
-    content=str(li_tag.find('blockquote',attrs={'class':'userstuff'}).contents[0])
-
-    return user,anon,toplevel,date,month,year,time,timezone,content
-
 
 class Comments(object):
 
@@ -52,6 +27,44 @@ class Comments(object):
 
     def __repr__(self):
         return '%s(id=%r)' % (type(self).__name__, self.id)
+
+    def parsecomment(self,li_tag): #inside class so the self info stays attached
+        h4_tag = li_tag.find('h4',attrs={'class':'heading'})
+        if h4_tag.find('a') is None:
+            user=str(h4_tag.contents[0].strip())
+            anon=True
+        else:
+            user=str(h4_tag.find('a').contents[0])
+            anon=False
+    
+        ul_tag = li_tag.find('ul',attrs={'class':'actions'})
+        if "Parent Thread" in str(ul_tag): #this is possibly the laziest way to search but hey, it works
+            toplevel=False
+        else:
+            toplevel=True
+    
+        date=str(li_tag.find('span',attrs={'class':'date'}).contents[0])
+        month=str(li_tag.find('abbr',attrs={'class':'month'}).contents[0])
+        year=str(li_tag.find('span',attrs={'class':'year'}).contents[0])
+        time=str(li_tag.find('span',attrs={'class':'time'}).contents[0])
+        timezone=str(li_tag.find('abbr',attrs={'class':'timezone'}).contents[0])
+    
+        content=str(li_tag.find('blockquote',attrs={'class':'userstuff'}).contents[0])
+    
+        return user,anon,toplevel,date,month,year,time,timezone#,content
+
+    def recursemorecomments(self,url):
+        mc_req = self.sess.get(url)
+        mc_soup = BeautifulSoup(mc_req.text, features='html.parser')
+        for mc_li_tag in mc_soup.findAll('li',attrs={'class': 'comment'}):
+            try:
+                yield self.parsecomment(mc_li_tag)
+            except AttributeError:
+                if "more comments in this thread" in str(mc_li_tag): #potentially will break if nested further?? unsure what that looks like though
+                    for x in self.recursemorecomments("https://archiveofourown.org"+mc_li_tag.find('a').get('href')):
+                        yield x
+                else:
+                    raise
 
     def comment_contents(self):
         """Generator for next comment on the work.
@@ -85,22 +98,14 @@ class Comments(object):
             soup = BeautifulSoup(req.text, features='html.parser')
             for li_tag in soup.findAll('li',attrs={'class': 'comment'}):
                 try:
-                    yield parsecomment(li_tag)
+                    yield self.parsecomment(li_tag)
                 except AttributeError:
                     #deleted comment only has text
                     if "Previous comment deleted" in str(li_tag):
                         pass 
                     elif "more comments in this thread" in str(li_tag):
-                        mc_req = self.sess.get("https://archiveofourown.org"+li_tag.find('a').get('href'))
-                        mc_soup = BeautifulSoup(mc_req.text, features='html.parser')
-                        for mc_li_tag in mc_soup.findAll('li',attrs={'class': 'comment'}):
-                            try:
-                                yield parsecomment(mc_li_tag)
-                            except AttributeError:
-                                if "more comments in this thread" in str(mc_li_tag): #potentially will break if nested further?? unsure what that looks like though
-                                    print("https://archiveofourown.org"+mc_li_tag.find('a').get('href'))
-                                else:
-                                    raise
+                        for x in self.recursemorecomments("https://archiveofourown.org"+li_tag.find('a').get('href')):
+                            yield x
                     else:
                         raise
 
