@@ -35,11 +35,11 @@ def parsecomment(li_tag):
     month=str(li_tag.find('abbr',attrs={'class':'month'}).contents[0])
     year=str(li_tag.find('span',attrs={'class':'year'}).contents[0])
     time=str(li_tag.find('span',attrs={'class':'time'}).contents[0])
+    date_time=date+' '+month+' '+year+' '+time    
     timezone=str(li_tag.find('abbr',attrs={'class':'timezone'}).contents[0])
-
     content=str(li_tag.find('blockquote',attrs={'class':'userstuff'}).contents[0])
 
-    return user,anon,toplevel,date,month,year,time,timezone,content
+    return user,anon,toplevel,date_time,timezone,content
 
 
 class Comments(object):
@@ -86,6 +86,7 @@ class Comments(object):
             for li_tag in soup.findAll('li',attrs={'class': 'comment'}):
                 try:
                     yield parsecomment(li_tag)
+
                 except AttributeError:
                     #deleted comment only has text
                     if "Previous comment deleted" in str(li_tag):
