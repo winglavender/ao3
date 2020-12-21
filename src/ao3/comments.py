@@ -55,6 +55,12 @@ class Comments(object):
 
     def recursemorecomments(self,url):
         mc_req = self.sess.get(url)
+        #if timeout, wait and try again
+        while len(mc_req.text) < 20 and "Retry later" in mc_req.text:
+            print("timeout... waiting 3 mins and trying again")
+            time.sleep(180)
+            mc_req = self.sess.get(url)
+
         mc_soup = BeautifulSoup(mc_req.text, features='html.parser')
         for mc_li_tag in mc_soup.findAll('li',attrs={'class': 'comment'}):
             try:
