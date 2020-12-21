@@ -90,14 +90,17 @@ class Comments(object):
                     #deleted comment only has text
                     if "Previous comment deleted" in str(li_tag):
                         pass 
-                    elif "more comments in this thread" in str(li_tag): #potentially will break if nested further
-                        try:
-                            mc_req = self.sess.get("https://archiveofourown.org"+li_tag.find('a').get('href'))
-                            mc_soup = BeautifulSoup(mc_req.text, features='html.parser')
-                            for mc_li_tag in mc_soup.findAll('li',attrs={'class': 'comment'}):
+                    elif "more comments in this thread" in str(li_tag):
+                        mc_req = self.sess.get("https://archiveofourown.org"+li_tag.find('a').get('href'))
+                        mc_soup = BeautifulSoup(mc_req.text, features='html.parser')
+                        for mc_li_tag in mc_soup.findAll('li',attrs={'class': 'comment'}):
+                            try:
                                 yield parsecomment(mc_li_tag)
-                        except AttributeError:
-                            raise
+                            except AttributeError:
+                                if "more comments in this thread" in str(mc_li_tag): #potentially will break if nested further?? unsure what that looks like though
+                                    print("https://archiveofourown.org"+mc_li_tag.find('a').get('href'))
+                                else:
+                                    raise
                     else:
                         raise
 
