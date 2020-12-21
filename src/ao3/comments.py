@@ -42,6 +42,11 @@ class Comments(object):
             toplevel=False
         else:
             toplevel=True
+            
+        work_id_raw =str(self)
+        work_id_split=work_id_raw.split("'")
+        work_id_num=work_id_split[1]
+        work_id=work_id_num[:-2]
     
         date=str(li_tag.find('span',attrs={'class':'date'}).contents[0])
         month=str(li_tag.find('abbr',attrs={'class':'month'}).contents[0])
@@ -52,7 +57,7 @@ class Comments(object):
     
         content=str(li_tag.find('blockquote',attrs={'class':'userstuff'}).contents[0])
     
-        return user,anon,toplevel,date_time,timezone,content
+        return work_id, user,anon,toplevel,date_time,timezone,content
 
     def recursemorecomments(self,url):
         mc_req = self.sess.get(url)
