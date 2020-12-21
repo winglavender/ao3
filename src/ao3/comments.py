@@ -79,10 +79,10 @@ class Comments(object):
                     year=str(li_tag.find('span',attrs={'class':'year'}).contents[0])
                     time=str(li_tag.find('span',attrs={'class':'time'}).contents[0])
                     timezone=str(li_tag.find('abbr',attrs={'class':'timezone'}).contents[0])
-    
+                    date_time=date+' '+month+' '+year+' '+time    
                     content=str(li_tag.find('blockquote',attrs={'class':'userstuff'}).contents[0])
 
-                    yield user,anon,toplevel,date,month,year,time,timezone
+                    yield user,anon,toplevel,date_time,timezone,content
                 except AttributeError:
                     #deleted comment only has text
                     if "Previous comment deleted" in str(li_tag):
