@@ -3,6 +3,7 @@
 from datetime import datetime
 import json
 import itertools
+import time
 
 from bs4 import BeautifulSoup, Tag
 import requests
