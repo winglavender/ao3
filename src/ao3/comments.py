@@ -36,6 +36,11 @@ class Comments(object):
         else:
             user=str(h4_tag.find('a').contents[0])
             anon=False
+        
+        if h4_tag.find('span',attrs={'class':'parent'}) is None:
+            chapter='on Chapter 1'
+        else:
+            chapter=str(h4_tag.find('span',attrs={'class':'parent'}).contents[0])
     
         ul_tag = li_tag.find('ul',attrs={'class':'actions'})
         if "Parent Thread" in str(ul_tag): #this is possibly the laziest way to search but hey, it works
@@ -57,7 +62,7 @@ class Comments(object):
     
         content=str(li_tag.find('blockquote',attrs={'class':'userstuff'}).contents[0])
     
-        return work_id, user,anon,toplevel,date_time,timezone,content
+        return work_id, user,anon,toplevel,date_time,timezone,chapter,content
 
     def recursemorecomments(self,url):
         mc_req = self.sess.get(url)
