@@ -57,6 +57,12 @@ class User(object):
             req = self.sess.get(api_url % page_no)
             soup = BeautifulSoup(req.text, features='html.parser')
 
+            #if timeout, wait and try again
+            while len(req.text) < 20 and "Retry later" in req.text:
+                print("timeout... waiting 3 mins and trying again")
+                time.sleep(180)
+                req = self.sess.get(api_url % page_no)
+
             # The entries are stored in a list of the form:
             #
             #     <ol class="bookmark index group">
