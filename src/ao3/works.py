@@ -96,7 +96,9 @@ class Work(object):
         if len(a_tag) < 1:
             return 'Anonymous'
         else:
-            return a_tag[0].contents[0].strip()
+            #return a_tag[0].contents[0].strip()
+            return [tag.contents[0].strip() for tag in a_tag]
+
 
     @property
     def summary(self):
