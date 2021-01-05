@@ -38,7 +38,7 @@ class User(object):
     def __repr__(self):
         return '%s(username=%r)' % (type(self).__name__, self.username)
 
-    def bookmarks_ids(self):
+    def bookmarks_ids(self, start_page, end_page):
         """
         Returns a list of the user's bookmarks' ids. Ignores external work bookmarks.
         User must be logged in to see private bookmarks.
@@ -50,8 +50,11 @@ class User(object):
 
         bookmarks = []
 
+        if not start_page:
+            start_page = 1
+
         num_works = 0
-        for page_no in itertools.count(start=1):
+        for page_no in itertools.count(start=start_page):
             print("Finding page: \t" + str(page_no) + " of bookmarks. \t" + str(num_works) + " bookmarks ids found.")
 
             req = self.sess.get(api_url % page_no)
@@ -103,7 +106,9 @@ class User(object):
                     else:
                         raise
 
-
+            # check if this is the last page we want to process
+            if end_page and page_no == end_page:
+                break
             # The pagination button at the end of the page is of the form
             #
             #     <li class="next" title="next"> ... </li>
@@ -121,15 +126,26 @@ class User(object):
 
         return bookmarks
 
-    def bookmarks(self):
+    def bookmarks(self, start_page=None, end_page=None):
         """
         Returns a list of the user's bookmarks as Work objects.
         Takes forever.
         User must be logged in to see private bookmarks.
         """
+        
+        # check input
+        if start_page and start_page < 1:
+            print("ERROR: start_page must be 1 or higher")
+            return []
+        if end_page and end_page < 1:
+            print("ERROR: end_page must be 1 or higher")
+            return []
+        if start_page and end_page and end_page - start_page < 0:
+            print("ERROR: end_page cannot be before start_page")
+            return []
 
         bookmark_total = 0
-        bookmark_ids = self.bookmarks_ids()
+        bookmark_ids = self.bookmarks_ids(start_page, end_page)
         bookmarks = []
 
         for bookmark_id in bookmark_ids:
@@ -141,7 +157,7 @@ class User(object):
 
         return bookmarks
 
-    def reading_history(self):
+    def reading_history(self, start_page=None, end_page=None):
         """Returns a list of articles in the user's reading history.
 
         This requires the user to turn on the Viewing History feature.
@@ -158,7 +174,20 @@ class User(object):
             'https://archiveofourown.org/users/%s/readings?page=%%d' %
             self.username)
 
-        for page_no in itertools.count(start=1):
+        # check input
+        if start_page is not None and start_page < 1:
+            print("ERROR: start_page must be 1 or higher")
+            return 
+        if end_page is not None and end_page < 1:
+            print("ERROR: end_page must be 1 or higher")
+            return
+        if start_page is not None and end_page is not None and end_page - start_page < 0:
+            print("ERROR: end_page cannot be before start_page")
+            return
+
+        if not start_page:
+            start_page = 1
+        for page_no in itertools.count(start=start_page):
             req = self.sess.get(api_url % page_no)
             print("On page: "+str(page_no))
             print("Cumulative deleted works encountered: "+str(self.deleted))
@@ -288,6 +317,10 @@ class User(object):
                         pass
                     else:
                         raise
+
+            # check if this is the last page we want to process
+            if end_page and end_page == page_no:
+                break
 
             # The pagination button at the end of the page is of the form
             #
