@@ -19,11 +19,17 @@ class AO3(object):
     def login(self, username, cookie):
         """Log in to the archive.
         This allows you to access pages that are only available while
-        logged in. Does no checking if the cookie is valid.
+        logged in. Returns True/False to indicate whether the login was successful.
         The cookie should be the value for _otwarchive_session
         """
         self.user = User(username,cookie)
         self.session = self.user.sess
+        try:
+            rh = self.user.reading_history()
+            item = next(rh)
+            return True
+        except AttributeError:
+            return False
 
     def __repr__(self):
         return '%s()' % (type(self).__name__)

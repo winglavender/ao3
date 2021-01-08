@@ -135,14 +135,11 @@ class User(object):
         
         # check input
         if start_page and start_page < 1:
-            print("ERROR: start_page must be 1 or higher")
-            return []
+            raise IndexError("ERROR: start_page must be 1 or higher")
         if end_page and end_page < 1:
-            print("ERROR: end_page must be 1 or higher")
-            return []
+            raise IndexError("ERROR: end_page must be 1 or higher")
         if start_page and end_page and end_page - start_page < 0:
-            print("ERROR: end_page cannot be before start_page")
-            return []
+            raise IndexError("ERROR: end_page cannot be before start_page")
 
         bookmark_total = 0
         bookmark_ids = self.bookmarks_ids(start_page, end_page)
@@ -157,7 +154,7 @@ class User(object):
 
         return bookmarks
 
-    def reading_history(self, start_page=None, end_page=None):
+    def reading_history(self, tgt_year=None):
         """Returns a list of articles in the user's reading history.
 
         This requires the user to turn on the Viewing History feature.
@@ -174,24 +171,12 @@ class User(object):
             'https://archiveofourown.org/users/%s/readings?page=%%d' %
             self.username)
 
-        # check input
-        if start_page is not None and start_page < 1:
-            print("ERROR: start_page must be 1 or higher")
-            return 
-        if end_page is not None and end_page < 1:
-            print("ERROR: end_page must be 1 or higher")
-            return
-        if start_page is not None and end_page is not None and end_page - start_page < 0:
-            print("ERROR: end_page cannot be before start_page")
-            return
-
-        if not start_page:
-            start_page = 1
-        for page_no in itertools.count(start=start_page):
+        for page_no in itertools.count(start=1):
             req = self.sess.get(api_url % page_no)
             print("On page: "+str(page_no))
             print("Cumulative deleted works encountered: "+str(self.deleted))
-            
+            end_iter = False # check whether we've passed the tgt_year
+
             #if timeout, wait and try again
             while len(req.text) < 20 and "Retry later" in req.text:
                 print("timeout... waiting 3 mins and trying again")
@@ -231,7 +216,12 @@ class User(object):
                         r'[0-9]{1,2} [A-Z][a-z]+ [0-9]{4}',
                         h4_tag.contents[2]).group(0)
                     date = datetime.strptime(date_str, '%d %b %Y').date()
-                    
+                    curr_year = date.year
+                    if tgt_year and curr_year > tgt_year: # skip this item, but we have to check the rest of the page
+                        continue 
+                    elif tgt_year and curr_year < tgt_year: # we passed tgt_year, stop iterating completely
+                        end_iter = True
+                        break
                     if "Visited once" in h4_tag.contents[2]:
                         numvisits='1' #TODO: probably want to change these int values to ints instead of strings...
                     else:
@@ -319,7 +309,7 @@ class User(object):
                         raise
 
             # check if this is the last page we want to process
-            if end_page and end_page == page_no:
+            if end_iter:
                 break
 
             # The pagination button at the end of the page is of the form
@@ -332,3 +322,21 @@ class User(object):
             next_button = soup.find('li', attrs={'class': 'next'})
             if next_button.find('span', attrs={'class': 'disabled'}):
                 break
+
+    def get_history_csv(self, year=None):
+        """ calls reading_history and formats the results into csv rows """
+        
+        header = ['work_id', 'date', 'numvisits', 'title', 'author', 'fandom', 'warnings', 'relationships', 'characters', 'additional_tags', 'words', 'chapters', 'comments', 'kudos', 'bookmarks', 'hits', 'pubdate']
+
+        rows = []
+        for work in self.reading_history(year):
+            row = []
+            for elem in work:
+                if type(elem) is list:
+                    row.append(",".join(elem))
+                else:
+                    row.append(elem)
+            rows.append(row)
+        return header, rows
+
+
