@@ -5,10 +5,11 @@ import time
 import datetime
 import sys
 import traceback
+import os
 
 app = Flask(__name__)
-app.config.from_pyfile('instance/config.py')
-
+#app.config.from_pyfile('instance/config.py')
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 @app.route("/")
 def home():
