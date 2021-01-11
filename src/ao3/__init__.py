@@ -24,6 +24,7 @@ class AO3(object):
         """
         self.user = User(username,cookie)
         self.session = self.user.sess
+        print(self.user)
         try:
             rh = self.user.reading_history()
             item = next(rh)
