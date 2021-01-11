@@ -9,7 +9,7 @@ import os
 
 app = Flask(__name__)
 #app.config.from_pyfile('instance/config.py')
-SECRET_KEY = os.getenv('SECRET_KEY')
+app.config.update(SECRET_KEY=os.getenv('SECRET_KEY'))
 
 @app.route("/")
 def home():
