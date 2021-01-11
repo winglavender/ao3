@@ -27,7 +27,9 @@ def form_result():
             session["year"] = userdata["year"]
             ts = time.time()
             st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H:%M:%S')
-            filename = '.data/' + userdata["username"] + '_' + userdata["year"] + '_history_' + st + '.csv'
+            if not os.path.exists('data'):
+                os.makedirs('data')
+            filename = 'data/' + userdata["username"] + '_' + userdata["year"] + '_history_' + st + '.csv'
             session["filename"] = filename
             results = process_result.get_users_results(userdata["username"], userdata["cookie"], int(userdata["year"]))
             if not results:
