@@ -288,7 +288,27 @@ class User(object):
 
                     pubdate_str=li_tag.find('p',attrs={'class','datetime'}).contents[0]
                     pubdate = datetime.strptime(pubdate_str, '%d %b %Y').date()
-                    yield work_id,date,numvisits,title,author,fandom,warnings,relationships,characters,freeforms,words,chapters,comments,kudos,bookmarks,hits,pubdate
+                    work = {
+                        'id': work_id,
+                        'visit_date': date,
+                        'num_visits': int(numvisits),
+                        'title': title,
+                        'author': author,
+                        'warnings': warnings,
+                        'chapters': chapters,
+                        'fandom': fandom,
+                        'relationships': relationships,
+                        'characters': characters,
+                        'additional_tags': freeforms,
+                        'published_date': pubdate,
+                        'words': int(words.replace(",","")),
+                        'comments': int(comments),
+                        'kudos': int(kudos),
+                        'bookmarks': int(bookmarks),
+                        'hits': int(hits),
+                    }
+                    yield work
+                    #yield work_id,date,numvisits,title,author,fandom,warnings,relationships,characters,freeforms,words,chapters,comments,kudos,bookmarks,hits,pubdate
 
                 except (KeyError, AttributeError) as e:
                     # A deleted work shows up as
@@ -323,20 +343,32 @@ class User(object):
             if next_button.find('span', attrs={'class': 'disabled'}):
                 break
 
-    def get_history_csv(self, year=None):
-        """ calls reading_history and formats the results into csv rows """
+    def get_history_csv(self, works):
+        """ converts reading history list into csv format """
         
-        header = ['work_id', 'date', 'numvisits', 'title', 'author', 'fandom', 'warnings', 'relationships', 'characters', 'additional_tags', 'words', 'chapters', 'comments', 'kudos', 'bookmarks', 'hits', 'pubdate']
+        header = ['id', 'visit_date', 'num_visits', 'title', 'author', 'fandom', 'warnings', 'relationships', 'characters', 'additional_tags', 'words', 'chapters', 'comments', 'kudos', 'bookmarks', 'hits', 'published_date']
 
         rows = []
-        for work in self.reading_history(year):
+        for work in works:
             row = []
-            for elem in work:
-                if type(elem) is list:
-                    row.append(",".join(elem))
+            for attribute in header:
+                if type(work[attribute]) is list:
+                    row.append(",".join(work[attribute]))
                 else:
-                    row.append(elem)
+                    row.append(work[attribute])
             rows.append(row)
         return header, rows
 
+    def get_history_list(self, year=None):
+        """ calls reading_history and formas the results into a list """
+        
+        attributes = ['id', 'visit_date', 'num_visits', 'title', 'author', 'fandom', 'warnings', 'relationships', 'characters', 'additional_tags', 'words', 'chapters', 'comments', 'kudos', 'bookmarks', 'hits', 'published_date']
+        works = []
+        count = 0
+        for work in self.reading_history(year):
+            count += 1
+            if count > 50:
+                break
+            works.append(work)
+        return works
 

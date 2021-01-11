@@ -1,15 +1,68 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script>function loading() {
+        document.getElementById( 
+                  "content").style.visibility = "hidden";
+        document.getElementById("loader").style.display = "block";
+        document.getElementById("loader_content").style.display = "block";
+
+      }
+    </script>
+    <style>
+    /* Center the loader */
+    #loader {
+      position: absolute;
+      left: 30%;
+      top: 30%;
+      z-index: 1;
+      width: 20px;
+      height: 20px;
+      margin: -76px 0 0 -76px;
+      border: 12px solid #f3f3f3;
+      border-radius: 50%;
+      border-top: 12px solid #3498db;
+      -webkit-animation: spin 2s linear infinite;
+      animation: spin 2s linear infinite;
+    }
+
+    @-webkit-keyframes spin {
+      0% { -webkit-transform: rotate(0deg); }
+      100% { -webkit-transform: rotate(360deg); }
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    </style>
+    
     <title>AO3 History Downloader</title>
     <link rel="stylesheet" type="text/css" href="static/style.css">
   </head>
   <body>
-    <h1>
-      Download your AO3 History 
-    </h1>
+  <div id="loader" style="display:none;"></div>
 
-    <form method="post" action="/result">
+
+    <h1>
+      AO3 Wrapped 
+    </h1>
+    
+    <div id="loader_content" style="display:none;">
+      <p>
+        Please be patient while your data is loading...
+      </p>
+    </div>
+
+    
+    <div id="content">
+    <p>
+      <a href="{{ url_for('instructions') }}">Instructions</a>
+    </p>
+
+    
+    <form method="post" action="/form_result">
         <label for="username">Username:</label>
         <input type="text" id="username" name="username"><br><br>
         <label for "cookie">Cookie:</label>
@@ -31,8 +84,8 @@
             <option value="2009">2009</option>
             <option value="2008">2008</option>
         </select><br><br>
-        <input type="submit" value="Download File">
+      <input type="submit" name="submit" value="Get Results" onclick="loading()">
     </form>
-        
+  </div>
   </body>
 </html>
