@@ -7,7 +7,7 @@ import sys
 import traceback
 
 app = Flask(__name__)
-app.config.from_object('config.Config')
+app.config.from_pyfile('instance/config.py')
 
 
 @app.route("/")
@@ -20,15 +20,15 @@ def form_result():
         try:
             start_time = time.time()
             userdata = dict(request.form)
-            username = userdata["username"]
-            session["username"] = userdata["username"]
-            session["cookie"] = userdata["cookie"]
-            session["year"] = userdata["year"]
+            username = userdata["username"][0]
+            session["username"] = userdata["username"][0]
+            session["cookie"] = userdata["cookie"][0]
+            session["year"] = userdata["year"][0]
             ts = time.time()
             st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H:%M:%S')
-            filename = '.data/' + userdata["username"] + '_' + userdata["year"] + '_history_' + st + '.csv'
+            filename = '.data/' + userdata["username"][0] + '_' + userdata["year"][0] + '_history_' + st + '.csv'
             session["filename"] = filename
-            results = process_result.get_users_results(userdata["username"], userdata["cookie"], int(userdata["year"]))
+            results = process_result.get_users_results(userdata["username"][0], userdata["cookie"][0], int(userdata["year"][0]))
             if not results:
                 return render_template("loginerror.html")
             csv_output, stats = results
@@ -39,7 +39,7 @@ def form_result():
                 for row in rows:
                     writer.writerow(row)
             print("--- Runtime: %s minutes ---" % ((time.time() - start_time)/60))
-            stats["year"] = userdata["year"]
+            stats["year"] = userdata["year"][0]
             return render_template("results.html", data=stats)
         except:
             traceback.print_exc()
