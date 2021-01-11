@@ -364,11 +364,7 @@ class User(object):
         
         attributes = ['id', 'visit_date', 'num_visits', 'title', 'author', 'fandom', 'warnings', 'relationships', 'characters', 'additional_tags', 'words', 'chapters', 'comments', 'kudos', 'bookmarks', 'hits', 'published_date']
         works = []
-        count = 0
         for work in self.reading_history(year):
-            count += 1
-            if count > 50:
-                break
             works.append(work)
         return works
 
