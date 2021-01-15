@@ -3,6 +3,7 @@ import requests
 from src.ao3 import utils
 import time
 import csv
+import os
 
 def get_users_results(username, cookie, year, filename):
     api = AO3()
