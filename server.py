@@ -13,7 +13,7 @@ from worker import conn
 
 app = Flask(__name__)
 q = Queue(connection=conn)
-local=False
+local=True
 
 if local:
     app.config.from_pyfile('instance/config.py')
@@ -41,7 +41,7 @@ def home():
 def form_result():
     if request.method == "POST":
         try:
-            start_time = time.time()
+            #start_time = time.time()
             userdata = dict(request.form)
             if local:
                 username = userdata["username"]
@@ -62,7 +62,7 @@ def form_result():
             session["filename"] = filename
 
             # new 
-            job = q.enqueue(get_users_results, username, cookie, int(year))
+            job = q.enqueue(get_users_results, username, cookie, int(year), filename)
             #data = username
             #job = q.enqueue(slow_func, data)
             return redirect(url_for('result', id=job.id))
