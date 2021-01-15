@@ -2,5 +2,5 @@ Flask==1.1.2
 gunicorn
 beautifulsoup4==4.9.3
 requests==2.18.4
-rq=1.7.0
-redis=3.5.3
+rq==1.7.0
+redis==3.5.3
