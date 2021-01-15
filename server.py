@@ -10,7 +10,6 @@ from rq import Queue
 from rq.job import Job
 from redis import Redis
 from worker import conn
-from slow_func import slow_func
 
 app = Flask(__name__)
 q = Queue(connection=conn)
