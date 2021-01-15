@@ -56,8 +56,8 @@ def form_result():
             session["year"] = year
             ts = time.time()
             st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H:%M:%S')
-            if not os.path.exists('data'):
-                os.makedirs('data')
+#            if not os.path.exists('data'):
+ #               os.makedirs('data')
             filename = 'data/' + username + '_' + year + '_history_' + st + '.csv'
             session["filename"] = filename
 

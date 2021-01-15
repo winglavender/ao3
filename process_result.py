@@ -16,6 +16,8 @@ def get_users_results(username, cookie, year, filename):
         # make csv file
         header, rows = csv_output
         ts = time.time()
+        if not os.path.exists('data'):
+            os.makedirs('data')
         with open(filename, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile, delimiter='\t', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             writer.writerow(header)
