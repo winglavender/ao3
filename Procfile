@@ -1,3 +1,3 @@
 web: gunicorn server:app
-web: python worker.py 
+web: sh heroku.sh 
 
