@@ -1,0 +1,18 @@
+body {
+  font-family: courier;
+  margin: 2em;
+  letter-spacing: 1px;
+}
+input[type="submit"] {
+  border: 1px solid black;
+  font-family: courier;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 1.1em;
+  letter-spacing: 1px;
+}
+input[type="submit"]:hover {
+  background-color: #eee;
+  cursor: pointer;
+}
+

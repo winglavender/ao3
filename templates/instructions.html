@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AO3 History Downloader</title>
+    <link rel="stylesheet" type="text/css" href="static/style.css" />
+  </head>
+  <body>
+    <h1>
+      Instructions
+    </h1>
+
+    <h2>
+      What is the AO3 Year in Review app?
+    </h2>
+
+    <p>
+      This webapp downloads the data from your Archive Of Our Own history for a
+      particular year and produces a summary of what you read (total words read,
+      most visited fics, most common tags, etc). It also generates a
+      downloadable spreadsheet that can be used to compute additional metrics.
+    </p>
+
+    <h2>
+      How to Use
+    </h2>
+
+    <h3>
+      Provide Your AO3 Login Info
+    </h3>
+
+    <p>
+      In order to retrieve your stats from AO3, you will need to provide your
+      username and your _otwarchive_session cookie to fill in the USERNAME and
+      COOKIE fields.
+    </p>
+
+    <p>
+      If you are using the Chrome browser from a computer, you can find your
+      cookie value as follows. There should be a similar process for other
+      browsers, but it may be difficult to access this information if you are
+      currently using a mobile device.
+    </p>
+
+    <ol>
+      <li>
+        Load any archiveofyourown.org page while logged in to your account.
+      </li>
+      <li>
+        Right click anywhere on the page and select "Inspect" from the menu.
+      </li>
+      <li>On the upper menu bar, click Application.</li>
+      <li>
+        Find the row in the table with Name _otwarchive_session. Copy the
+        contents of Value into the COOKIE field.
+      </li>
+      <li>
+        If you see the "Login error" message, then the app wasn't able to log in
+        using the username/cookie you provided. The most likely reason for this
+        is that the cookie has refreshed and has a different value now. You
+        should repeat the above steps and copy the new value into the COOKIE
+        field.
+      </li>
+    </ol>
+
+    <h3>
+      Wait for Script to Run
+    </h3>
+
+    <p>
+      The app has to load every page in your history for the specified year in
+      order to collect the relevant data to build your summary. This takes time,
+      especially if you read a lot of fics that year. It may take 3 minutes or
+      more to download 70 pages of history.
+    </p>
+
+    <h2>
+      Technical Details
+    </h2>
+
+    <p>
+      This app relies on the information stored in your AO3 history, so you must
+      have your history enabled to use it. If you accessed fics while not logged
+      in to your AO3 account, those visits will not be counted in your summary.
+      Finally, note that AO3 history counts a work as "read" if you opened the
+      work, even if you didn't actually read to the end of the page (or all the
+      way through the final chapter).
+    </p>
+
+    <h2>
+      Contact
+    </h2>
+
+    <p>
+      Email
+      <a href="mailto:winglavender@gmail.com">winglavender@gmail.com</a> with
+      any questions, issues, or feedback.
+    </p>
+
+    <a href="{{ url_for('home') }}">Return to main page</a>
+  </body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <title>AO3 History Downloader</title>
+    <link rel="stylesheet" type="text/css" href="static/style.css">
+  </head>
+  <body>
+
+
+    <h1>
+      AO3 Wrapped 
+    </h1>
+    
+    
+    <div id="content">
+    <p>
+      <a href="{{ url_for('instructions') }}">Instructions</a>
+    </p>
+
+    
+    <form method="post" action="/form_result">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username"><br><br>
+        <label for "cookie">Cookie:</label>
+        <input type="text" id="cookie" name="cookie"><br><br>
+        <label for "year">Year:</label>
+        <select name="year" id="year">
+            <option value="2021">2021</option>
+            <option value="2020">2020</option>
+            <option value="2019">2019</option>
+            <option value="2018">2018</option>
+            <option value="2017">2017</option>
+            <option value="2016">2016</option>
+            <option value="2015">2015</option>
+            <option value="2014">2014</option>
+            <option value="2013">2013</option>
+            <option value="2012">2012</option>
+            <option value="2011">2011</option>
+            <option value="2010">2010</option>
+            <option value="2009">2009</option>
+            <option value="2008">2008</option>
+        </select><br><br>
+      <input type="submit" name="submit" value="Get Results">
+    </form>
+  </div>
+  </body>
+</html>
