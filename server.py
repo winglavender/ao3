@@ -96,7 +96,17 @@ def result(id):
         #return get_template(status, refresh=True)
     elif status == 'finished':
         result = job.result
-        return render_template('results.html', data=result)
+        csv_output, stats = result
+        if not os.path.exists('data'):
+            os.makedirs('data')
+        filename = session.get("filename")
+        header, rows = csv_output
+        with open(filename, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile, delimiter='\t', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            writer.writerow(header)
+            for row in rows:
+                writer.writerow(row)
+        return render_template('results.html', data=stats)
         #return get_template(result)
 
 @app.route("/instructions")
