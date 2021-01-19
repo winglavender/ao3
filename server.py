@@ -43,7 +43,7 @@ def form_result():
             st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H:%M:%S')
             filename = 'data/' + username + '_' + year + '_history_' + st + '.csv'
             session["filename"] = filename
-            job = q.enqueue(get_users_results, username, cookie, int(year), filename, job_timeout=10) # 30 min timeout
+            job = q.enqueue(get_users_results, username, cookie, int(year), filename, job_timeout=1800) # 30 min timeout
             return redirect(url_for('result', id=job.id))
         except:
             traceback.print_exc()
