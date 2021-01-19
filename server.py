@@ -43,7 +43,7 @@ def form_result():
             st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H:%M:%S')
             filename = 'data/' + username + '_' + year + '_history_' + st + '.csv'
             session["filename"] = filename
-            job = q.enqueue(get_users_results, username, cookie, int(year), filename)
+            job = q.enqueue(get_users_results, username, cookie, int(year), filename, job_timeout=10) # 30 min timeout
             return redirect(url_for('result', id=job.id))
         except:
             traceback.print_exc()
@@ -58,9 +58,14 @@ def result(id):
     if status in ['queued', 'started', 'deferred']:
         return render_template("refresh.html", result=status, refresh=True)
     elif status == 'failed':
+        # check for timeout
+        if 'JobTimeoutException' in job.__dict__["exc_info"].split("raise")[-1]:
+            return render_template("timeouterror.html")
         return render_template("error.html")
     elif status == 'finished':
         result = job.result
+        if not result: # login error
+            return render_template('loginerror.html')
         csv_output, stats = result
         if not os.path.exists('data'):
             os.makedirs('data')
