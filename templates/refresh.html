@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+ <head>
+ {% if refresh %}
+ <meta http-equiv="refresh" content="5">
+ {% endif %}
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+ <title>AO3 Year in Review</title>
+ <link rel="stylesheet" type="text/css" href="../static/style.css">
+ </head>
+ <body>
+ <p>Please be patient while your history is downloading. Your results will be displayed on this page when they are ready.</p>
+ 
+ <p>Download status: {{result}}</p>
+
+ <a href="{{ url_for('home') }}">Return to main page</a>
+ </body>
+</html>

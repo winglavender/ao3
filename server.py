@@ -1,9 +1,8 @@
-from flask import Flask, render_template, request, send_file, session, redirect, url_for, render_template_string
+from flask import Flask, render_template, request, send_file, session, redirect, url_for
 from process_result import get_users_results
 import csv
 import time
 import datetime
-import sys
 import traceback
 import os
 from rq import Queue
@@ -20,19 +19,6 @@ if local:
 else:
     app.config.update(SECRET_KEY=os.getenv('SECRET_KEY'))
 
-template_str='''<html>
-    <head>
-      {% if refresh %}
-      <meta http-equiv="refresh" content="5">
-      {% endif %}
-    </head>
-    <body>{{result}}</body>
-    </html>'''
-
-def get_template(data, refresh=False):
-    return render_template('results.html', data=data, refresh=refresh)
-    #return render_template_string(template_str, result=data, refresh=refresh)
-
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -41,7 +27,6 @@ def home():
 def form_result():
     if request.method == "POST":
         try:
-            #start_time = time.time()
             userdata = dict(request.form)
             if local:
                 username = userdata["username"]
@@ -56,31 +41,10 @@ def form_result():
             session["year"] = year
             ts = time.time()
             st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H:%M:%S')
-#            if not os.path.exists('data'):
- #               os.makedirs('data')
             filename = 'data/' + username + '_' + year + '_history_' + st + '.csv'
             session["filename"] = filename
-
-            # new 
             job = q.enqueue(get_users_results, username, cookie, int(year), filename)
-            #data = username
-            #job = q.enqueue(slow_func, data)
             return redirect(url_for('result', id=job.id))
-
-            # old
-            #results = process_result.get_users_results(username, cookie, int(year))
-            #if not results:
-            #    return render_template("loginerror.html")
-            #csv_output, stats = results
-            #header, rows = csv_output
-            #with open(filename, 'w', newline='') as csvfile:
-            #    writer = csv.writer(csvfile, delimiter='\t', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-            #    writer.writerow(header)
-            #    for row in rows:
-            #        writer.writerow(row)
-            #print("--- Runtime: %s minutes ---" % ((time.time() - start_time)/60))
-            #stats["year"] = year
-            #return render_template("results.html", data=stats)
         except:
             traceback.print_exc()
             return render_template("error.html")
@@ -91,9 +55,10 @@ def form_result():
 def result(id):
     job = Job.fetch(id, connection=conn)
     status = job.get_status()
-    if status in ['queued', 'started', 'deferred', 'failed']:
-        return render_template_string(template_str, result=status, refresh=True)
-        #return get_template(status, refresh=True)
+    if status in ['queued', 'started', 'deferred']:
+        return render_template("refresh.html", result=status, refresh=True)
+    elif status == 'failed':
+        return render_template("error.html")
     elif status == 'finished':
         result = job.result
         csv_output, stats = result
@@ -101,13 +66,15 @@ def result(id):
             os.makedirs('data')
         filename = session.get("filename")
         header, rows = csv_output
+        if len(rows) == 0:
+            return render_template('no_results.html', year=stats['year'])
         with open(filename, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile, delimiter='\t', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             writer.writerow(header)
             for row in rows:
                 writer.writerow(row)
-        return render_template('results.html', data=stats)
-        #return get_template(result)
+        items=[{"name":'name_str', "val":'1'}]
+        return render_template('results.html', data=stats, items=items)
 
 @app.route("/instructions")
 def instructions():
@@ -116,7 +83,6 @@ def instructions():
 @app.route("/download")
 def download():
     filename = session.get("filename")
-    print(filename)
     return send_file(filename, as_attachment=True)      
       
 if __name__ == "__main__":
