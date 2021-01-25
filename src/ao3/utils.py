@@ -37,7 +37,7 @@ def compute_work_stats(works):
     tag_freq = {}
     author_freq = {}
     for work in works:
-        num_visits = int(math.ceil(work['num_visits']/word['num_chapters'])) # num recorded visits discounted by number of chapters
+        num_visits = int(math.ceil(work['num_visits']/work['num_chapters'])) # num recorded visits discounted by number of chapters
         total_words += work['words'] * num_visits 
         total_fics += num_visits 
         total_unique_fics += 1
