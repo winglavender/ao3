@@ -37,7 +37,9 @@ def compute_work_stats(works):
     tag_freq = {}
     author_freq = {}
     for work in works:
-        num_visits = int(math.ceil(work['num_visits']/work['chapters'])) # num recorded visits discounted by number of chapters
+        tmp = work['chapters'].split('/')
+        num_chapters = int(tmp[0])
+        num_visits = int(math.ceil(work['num_visits']/num_chapters)) # num recorded visits discounted by number of chapters
         total_words += work['words'] * num_visits 
         total_fics += num_visits 
         total_unique_fics += 1
@@ -57,7 +59,7 @@ def compute_work_stats(works):
             if tag not in tag_freq:
                 tag_freq[tag] = 0
             tag_freq[tag] += num_visits 
-        fic_freq[(work['title'],tuple(work['author']))] = work['num_visits']
+        fic_freq[(work['title'],tuple(work['author']))] = num_visits
     # remove uninformative results
     fandom_freq.pop('No Fandom', None)
     author_freq.pop('orphan_account', None)

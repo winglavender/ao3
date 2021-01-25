@@ -84,6 +84,14 @@ def result(id):
 @app.route("/instructions")
 def instructions():
     return render_template("instructions.html")
+
+@app.route("/technical")
+def technical():
+    return render_template("technical.html")
+
+@app.route("/contact")
+def contact():
+    return render_template("contact.html")
   
 @app.route("/download")
 def download():
