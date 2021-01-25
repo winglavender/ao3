@@ -2,6 +2,7 @@
 """Utility functions."""
 
 import re
+import math
 
 # Regex for extracting the work ID from an AO3 URL.  Designed to match URLs
 # of the form
@@ -29,15 +30,17 @@ def compute_work_stats(works):
     # todo
     total_words = 0
     total_fics = 0
+    total_unique_fics = 0
     fandom_freq = {}
     relationship_freq = {}
     fic_freq = {}
     tag_freq = {}
     author_freq = {}
     for work in works:
-        num_visits = work['num_visits']
-        total_words += work['words'] * num_visits
+        num_visits = int(math.ceil(work['num_visits']/word['num_chapters'])) # num recorded visits discounted by number of chapters
+        total_words += work['words'] * num_visits 
         total_fics += num_visits 
+        total_unique_fics += 1
         for rel in work['relationships']:
             if rel not in relationship_freq:
                 relationship_freq[rel] = 0
@@ -67,6 +70,7 @@ def compute_work_stats(works):
     stats = {
         'total_words': "{:,}".format(total_words),
         'total_fics': "{:,}".format(total_fics),
+        'total_unique_fics': "{:,}".format(total_unique_fics),
         'total_fandoms': "{:,}".format(len(fandom_freq)),
         'total_relationships': "{:,}".format(len(relationship_freq)),
         'top_fandoms': sorted_tuples_to_dict(fandom_top5),
