@@ -230,6 +230,10 @@ class User(object):
                     #cast all the beautifulsoup navigablestrings to strings
                     title=str(li_tag.find('h4', attrs={'class':'heading'}).find('a').contents[0])
 
+                    # work url
+                    url_item = li_tag.find('a', href=True)
+                    url = "https://archiveofourown.org" + url_item['href']
+
                     author=[] #this is if there's multiple authors
                     author_tag=li_tag.find('h4', attrs={'class':'heading'})
                     for x in author_tag.find_all('a',attrs={'rel':'author'}):
@@ -290,6 +294,7 @@ class User(object):
                     pubdate = datetime.strptime(pubdate_str, '%d %b %Y').date()
                     work = {
                         'id': work_id,
+                        'url': url,
                         'visit_date': date,
                         'num_visits': int(numvisits),
                         'title': title,
@@ -346,7 +351,7 @@ class User(object):
     def get_history_csv(self, works):
         """ converts reading history list into csv format """
         
-        header = ['id', 'visit_date', 'num_visits', 'title', 'author', 'fandom', 'warnings', 'relationships', 'characters', 'additional_tags', 'words', 'chapters', 'comments', 'kudos', 'bookmarks', 'hits', 'published_date']
+        header = ['id', 'url', 'visit_date', 'num_visits', 'title', 'author', 'fandom', 'warnings', 'relationships', 'characters', 'additional_tags', 'words', 'chapters', 'comments', 'kudos', 'bookmarks', 'hits', 'published_date']
 
         rows = []
         for work in works:
@@ -362,7 +367,7 @@ class User(object):
     def get_history_list(self, year=None):
         """ calls reading_history and formas the results into a list """
         
-        attributes = ['id', 'visit_date', 'num_visits', 'title', 'author', 'fandom', 'warnings', 'relationships', 'characters', 'additional_tags', 'words', 'chapters', 'comments', 'kudos', 'bookmarks', 'hits', 'published_date']
+        attributes = ['id', 'url', 'visit_date', 'num_visits', 'title', 'author', 'fandom', 'warnings', 'relationships', 'characters', 'additional_tags', 'words', 'chapters', 'comments', 'kudos', 'bookmarks', 'hits', 'published_date']
         works = []
         for work in self.reading_history(year):
             works.append(work)

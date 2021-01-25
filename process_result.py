@@ -8,7 +8,7 @@ import os
 def get_users_results(username, cookie, year, filename):
     api = AO3()
     login_success = api.login(username, cookie)
-   
+    print(f"Login success: {login_success}")   
     if login_success:
         start_time = time.time()
         works_list = api.user.get_history_list(year)
