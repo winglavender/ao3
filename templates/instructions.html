@@ -16,15 +16,15 @@
 
     <p>
       In order to retrieve your stats from AO3, you will need to provide your
-      username and your _otwarchive_session cookie to fill in the USERNAME and
-      COOKIE fields.
+      username and your _otwarchive_session cookie to fill in the "Username" and
+      "Cookie" fields.
     </p>
 
     <p>
       If you are using the Chrome browser from a computer, you can find your
       cookie value as follows. There should be a similar process for other
-      browsers, but it may be difficult to access this information if you are
-      currently using a mobile device.
+      browsers, but it may be difficult to access this information on  
+      a mobile device.
     </p>
 
     <ol>
@@ -37,13 +37,13 @@
       <li>On the upper menu bar, click Application.</li>
       <li>
         Find the row in the table with Name _otwarchive_session. Copy the
-        contents of Value into the COOKIE field.
+        contents of Value into the "Cookie" field.
       </li>
       <li>
         If you see the "Login error" message, then the app wasn't able to log in
         using the username/cookie you provided. The most likely reason for this
         is that the cookie has refreshed and has a different value now. You
-        should repeat the above steps and copy the new value into the COOKIE
+        should repeat the above steps and copy the new value into the "Cookie" 
         field.
       </li>
     </ol>
@@ -54,10 +54,13 @@
 
     <p>
       The app has to load every page in your history for the specified year in
-      order to collect the relevant data to build your summary. This takes time,
-      especially if you read a lot of fics that year. It may take 3 minutes or
-      more to download 70 pages of history.
+      order to collect the relevant data to build a summary. This takes time,
+      especially if you read a lot of fics that year. It may take 5 minutes or
+      more to download 100 pages of history, for example.
     </p>
+
+    <p>
+    In order to not overwhelm AO3 by sending too many requests, the app only retrieves the results for a single user at a time. If a lot of people are using the app at the same time, you may have to wait a while to get your results.</p>
 
 
     <a href="{{ url_for('home') }}">Return to main page</a>
