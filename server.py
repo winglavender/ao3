@@ -44,6 +44,7 @@ def form_result():
             filename = 'data/' + username + '_' + year + '_history_' + st + '.csv'
             session["filename"] = filename
             job = q.enqueue(get_users_results, username, cookie, int(year), filename, job_timeout=1800) # 30 min timeout
+            print(f"Queue length: {len(q)}")
             return redirect(url_for('result', id=job.id))
         except:
             traceback.print_exc()
