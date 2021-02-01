@@ -12,7 +12,7 @@ from worker import conn
 
 app = Flask(__name__)
 q = Queue(connection=conn)
-local=False
+local=True
 
 if local:
     app.config.from_pyfile('instance/config.py')

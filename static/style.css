@@ -27,7 +27,7 @@ select {
 }
 table {
     border: 1px solid gray;
-    width: 50%;
+    width: 100%;
     margin: 10px;
 }
 tr.thead td, td.thead {

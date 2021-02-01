@@ -259,7 +259,6 @@ class User(object):
 
                     # rating
                     rating = li_tag.select('span[class*="rating"]')[0].find('span').get_text()
-                    print(rating)
 
                     author=[] #this is if there's multiple authors
                     author_tag=li_tag.find('h4', attrs={'class':'heading'})
