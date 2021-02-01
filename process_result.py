@@ -5,9 +5,9 @@ import time
 import csv
 import os
 
-def get_users_results(username, cookie, year, filename):
+def get_users_results(username, password, year, filename):
     api = AO3()
-    login_success = api.login(username, cookie)
+    login_success = api.login(username, password)
     print(f"Login success: {login_success}")   
     if login_success:
         start_time = time.time()

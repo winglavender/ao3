@@ -28,22 +28,17 @@ def form_result():
     if request.method == "POST":
         try:
             userdata = dict(request.form)
-            if local:
-                username = userdata["username"]
-                cookie = userdata["cookie"]
-                year = userdata["year"]
-            else:
-                username = userdata["username"]
-                cookie = userdata["cookie"]
-                year = userdata["year"]
+            username = userdata["username"]
+            password = userdata["password"]
+            year = userdata["year"]
             session["username"] = username
-            session["cookie"] = cookie
+            session["password"] = password 
             session["year"] = year
             ts = time.time()
             st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H:%M:%S')
             filename = 'data/' + username + '_' + year + '_history_' + st + '.csv'
             session["filename"] = filename
-            job = q.enqueue(get_users_results, username, cookie, int(year), filename, job_timeout=1800) # 30 min timeout
+            job = q.enqueue(get_users_results, username, password, int(year), filename, job_timeout=1800) # 30 min timeout
             print(f"Queue length: {len(q)}")
             return redirect(url_for('result', id=job.id))
         except:
