@@ -12,11 +12,34 @@ from .works import Work
 class User(object):
 
 #   instead of passing plaintext passwords, pass the contents of the _otwarchive_session cookie!
-    def __init__(self, username, cookie):
+    def __init__(self, username, password, sess=None):
         self.username = username
-        sess = requests.Session()
-#       previously, used password
-#        req = sess.post('https://archiveofourown.org/user_sessions', params={
+        if sess is None:
+            sess = requests.Session()
+        req = sess.get('https://archiveofourown.org')
+        soup = BeautifulSoup(req.text, features='html.parser')
+
+        authenticity_token = soup.find('input', {'name': 'authenticity_token'})['value']
+
+        req = sess.post('https://archiveofourown.org/users/login', params={
+            'authenticity_token': authenticity_token,
+            'user[login]': username,
+            'user[password]': password,
+            'user[remember_me]': '1',
+            'commit': 'Log in',
+            'utf8': u'\x2713',
+        })
+        # Unfortunately AO3 doesn't use HTTP status codes to communicate
+        # results -- it's a 200 even if the login fails.
+        if 'Please try again' in req.text:
+            raise RuntimeError(
+                'Error logging in to AO3; is your password correct?')
+
+        self.sess = sess
+
+        self.deleted = 0 #just for curiosity, count how many times deleted or locked works appear
+
+        #req = sess.post('https://archiveofourown.org/user_sessions', params={
 #            'user_session[login]': username,
 #            'user_session[password]': password,
 #        })
@@ -26,14 +49,14 @@ class User(object):
 #            raise RuntimeError(
 #                'Error logging in to AO3; is your password correct?')
 
-        jar=requests.cookies.RequestsCookieJar()
-        jar.set('_otwarchive_session',cookie,domain='archiveofourown.org')  #must be done separately bc the set func returns a cookie, not a jar
-        jar.set('user_credentials','1',domain='archiveofourown.org') #AO3 requires this cookie to be set
-        sess.cookies=jar
+        #jar=requests.cookies.RequestsCookieJar()
+        #jar.set('_otwarchive_session',cookie,domain='archiveofourown.org')  #must be done separately bc the set func returns a cookie, not a jar
+        #jar.set('user_credentials','1',domain='archiveofourown.org') #AO3 requires this cookie to be set
+        #sess.cookies=jar
 
-        self.sess = sess
+        #self.sess = sess
 
-        self.deleted = 0 #just for curiosity, count how many times deleted or locked works appear
+        #self.deleted = 0 #just for curiosity, count how many times deleted or locked works appear
 
     def __repr__(self):
         return '%s(username=%r)' % (type(self).__name__, self.username)
@@ -159,7 +182,7 @@ class User(object):
 
         This requires the user to turn on the Viewing History feature.
 
-        Generates a tuple of work_id,date,numvisits,title,author,fandom,warnings,relationships,characters,freeforms,words,chapters,comments,kudos,bookmarks,hits,pubdate
+        Generates a tuple of work_id,date,numvisits,title,author,fandom,rating,warnings,relationships,characters,freeforms,words,chapters,comments,kudos,bookmarks,hits,pubdate
         Note that the dates are datetime objects, but everything else is either a list of strings (if multiple values) or a string. 
 
         """
@@ -234,6 +257,10 @@ class User(object):
                     url_item = li_tag.find('a', href=True)
                     url = "https://archiveofourown.org" + url_item['href']
 
+                    # rating
+                    rating = li_tag.select('span[class*="rating"]')[0].find('span').get_text()
+                    print(rating)
+
                     author=[] #this is if there's multiple authors
                     author_tag=li_tag.find('h4', attrs={'class':'heading'})
                     for x in author_tag.find_all('a',attrs={'rel':'author'}):
@@ -299,6 +326,7 @@ class User(object):
                         'num_visits': int(numvisits),
                         'title': title,
                         'author': author,
+                        'rating': rating,
                         'warnings': warnings,
                         'chapters': chapters,
                         'fandom': fandom,
@@ -351,7 +379,7 @@ class User(object):
     def get_history_csv(self, works):
         """ converts reading history list into csv format """
         
-        header = ['id', 'url', 'visit_date', 'num_visits', 'title', 'author', 'fandom', 'warnings', 'relationships', 'characters', 'additional_tags', 'words', 'chapters', 'comments', 'kudos', 'bookmarks', 'hits', 'published_date']
+        header = ['id', 'url', 'visit_date', 'num_visits', 'title', 'author', 'fandom', 'rating', 'warnings', 'relationships', 'characters', 'additional_tags', 'words', 'chapters', 'comments', 'kudos', 'bookmarks', 'hits', 'published_date']
 
         rows = []
         for work in works:
@@ -367,7 +395,7 @@ class User(object):
     def get_history_list(self, year=None):
         """ calls reading_history and formas the results into a list """
         
-        attributes = ['id', 'url', 'visit_date', 'num_visits', 'title', 'author', 'fandom', 'warnings', 'relationships', 'characters', 'additional_tags', 'words', 'chapters', 'comments', 'kudos', 'bookmarks', 'hits', 'published_date']
+        attributes = ['id', 'url', 'visit_date', 'num_visits', 'title', 'author', 'fandom', 'rating', 'warnings', 'relationships', 'characters', 'additional_tags', 'words', 'chapters', 'comments', 'kudos', 'bookmarks', 'hits', 'published_date']
         works = []
         for work in self.reading_history(year):
             works.append(work)
