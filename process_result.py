@@ -17,7 +17,7 @@ def get_users_results(username, password, year, filename):
         stats['year'] = year
         print("--- Runtime: %s minutes ---" % ((time.time() - start_time)/60))
         print(stats)
-        return csv_output, stats
+        return csv_output, stats, len(works_list)
     else:
         return False
    
