@@ -1,2 +1,2 @@
 web: gunicorn server:app
-worker: rq worker worker-tasks
+worker: rq worker -u $REDISTOGO_URL worker-tasks 
