@@ -16,8 +16,8 @@ redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
 #local = os.getenv('LOCAL', True)
 #q = Queue(connection=conn)
 conn = redis.from_url(redis_url)
-q = Queue(connection=conn)
-local=False
+q = Queue('worker-tasks', connection=conn)
+local=True
 
 if local:
     app.config.from_pyfile('instance/config.py')
