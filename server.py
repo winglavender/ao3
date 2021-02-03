@@ -62,8 +62,11 @@ def result(id):
         return render_template("error.html")
     elif status == 'finished':
         result = job.result
-        if not result: # login error
-            return render_template('loginerror.html')
+        if len(result) == 2 and not result[0]: # encountered an error
+            if result[1] == "login": # login error
+                return render_template('loginerror.html')
+            elif result[1] == "history": # user doesn't have any history
+                return render_template('no_history.html')
         csv_output, stats, num_works = result
         print(f"Status: job {id} succeeded ({num_works} works)")
         if not os.path.exists('data'):

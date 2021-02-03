@@ -22,15 +22,24 @@ class AO3(object):
         logged in. Returns True/False to indicate whether the login was successful.
         The cookie should be the value for _otwarchive_session
         """
-        self.user = User(username, password, sess=self.session)
-        #self.session = self.user.sess
-        print(self.user)
         try:
+            self.user = User(username, password, sess=self.session)
+            print(self.user)
             rh = self.user.reading_history()
             item = next(rh)
-            return True
-        except AttributeError:
-            return False
+            return True, True
+        except RuntimeError: # failed login
+            return False, False
+        except AttributeError: # successful login, but no history
+            return True, False
+        #self.session = self.user.sess
+        #print(self.user)
+        #try:
+        #    rh = self.user.reading_history()
+        #    item = next(rh)
+        #    return True
+        #except AttributeError:
+        #    return False
 
     def __repr__(self):
         return '%s()' % (type(self).__name__)

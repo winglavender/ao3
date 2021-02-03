@@ -7,9 +7,13 @@ import os
 
 def get_users_results(username, password, year, filename):
     api = AO3()
-    login_success = api.login(username, password)
-    print(f"Login success: {login_success}")   
-    if login_success:
+    login_success, has_history = api.login(username, password)
+    if not login_success:
+        return False, "login"
+    elif not has_history:
+        return False, "history"
+    else:
+        print(f"Login success: {login_success}")   
         start_time = time.time()
         works_list = api.user.get_history_list(year)
         csv_output = api.user.get_history_csv(works_list)
@@ -18,6 +22,4 @@ def get_users_results(username, password, year, filename):
         print("--- Runtime: %s minutes ---" % ((time.time() - start_time)/60))
         print(stats)
         return csv_output, stats, len(works_list)
-    else:
-        return False
-   
+  
