@@ -7,12 +7,17 @@ import traceback
 import os
 from rq import Queue
 from rq.job import Job
-from redis import Redis
-from worker import conn
+#from redis import Redis
+import redis
+#from worker import conn
 
 app = Flask(__name__)
+redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
+local = os.getenv('LOCAL', True)
+#q = Queue(connection=conn)
+conn = redis.from_url(redis_url)
 q = Queue(connection=conn)
-local=False
+#local=True
 
 if local:
     app.config.from_pyfile('instance/config.py')
