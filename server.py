@@ -13,11 +13,11 @@ import redis
 
 app = Flask(__name__)
 redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
-local = os.getenv('LOCAL', True)
+#local = os.getenv('LOCAL', True)
 #q = Queue(connection=conn)
 conn = redis.from_url(redis_url)
 q = Queue(connection=conn)
-#local=True
+local=False
 
 if local:
     app.config.from_pyfile('instance/config.py')
