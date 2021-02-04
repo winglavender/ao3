@@ -193,10 +193,10 @@ class User(object):
         api_url = (
             'https://archiveofourown.org/users/%s/readings?page=%%d' %
             self.username)
-        print("Processing", end=' ')
+        print("Processing", end=' ', flush=True)
         for page_no in itertools.count(start=1):
             req = self.sess.get(api_url % page_no)
-            print(page_no, end=' ')
+            print(page_no, end=' ', flush=True)
             #print("Cumulative deleted works encountered: "+str(self.deleted))
             end_iter = False # check whether we've passed the tgt_year
 

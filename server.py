@@ -55,38 +55,42 @@ def form_result():
 
 @app.route('/result/<string:id>')
 def result(id):
-    job = Job.fetch(id, connection=conn)
-    status = job.get_status()
-    if status in ['queued', 'started', 'deferred']:
-        return render_template("refresh.html", result=status, refresh=True)
-    elif status == 'failed':
-        print(f"Status: job {id} failed")
-        # check for timeout
-        if 'JobTimeoutException' in job.__dict__["exc_info"].split("raise")[-1]:
-            return render_template("timeouterror.html")
+    try:
+        job = Job.fetch(id, connection=conn)
+        status = job.get_status()
+        if status in ['queued', 'started', 'deferred']:
+            return render_template("refresh.html", result=status, refresh=True)
+        elif status == 'failed':
+            print(f"Status: job {id} failed")
+            # check for timeout
+            if 'JobTimeoutException' in job.__dict__["exc_info"].split("raise")[-1]:
+                return render_template("timeouterror.html")
+            return render_template("error.html")
+        elif status == 'finished':
+            result = job.result
+            if len(result) == 2 and not result[0]: # encountered an error
+                if result[1] == "login": # login error
+                    return render_template('loginerror.html')
+                elif result[1] == "history": # user doesn't have any history
+                    return render_template('no_history.html')
+            csv_output, stats, num_works = result
+            print(f"Status: job {id} succeeded ({num_works} works)")
+            if not os.path.exists('data'):
+                os.makedirs('data')
+            filename = session.get("filename")
+            header, rows = csv_output
+            if len(rows) == 0:
+                return render_template('no_results.html', year=stats['year'])
+            with open(filename, 'w', newline='') as csvfile:
+                writer = csv.writer(csvfile, delimiter='\t', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                writer.writerow(header)
+                for row in rows:
+                    writer.writerow(row)
+            items=[{"name":'name_str', "val":'1'}]
+            return render_template('results.html', data=stats, items=items)
+    except:
+        traceback.print_exc()
         return render_template("error.html")
-    elif status == 'finished':
-        result = job.result
-        if len(result) == 2 and not result[0]: # encountered an error
-            if result[1] == "login": # login error
-                return render_template('loginerror.html')
-            elif result[1] == "history": # user doesn't have any history
-                return render_template('no_history.html')
-        csv_output, stats, num_works = result
-        print(f"Status: job {id} succeeded ({num_works} works)")
-        if not os.path.exists('data'):
-            os.makedirs('data')
-        filename = session.get("filename")
-        header, rows = csv_output
-        if len(rows) == 0:
-            return render_template('no_results.html', year=stats['year'])
-        with open(filename, 'w', newline='') as csvfile:
-            writer = csv.writer(csvfile, delimiter='\t', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-            writer.writerow(header)
-            for row in rows:
-                writer.writerow(row)
-        items=[{"name":'name_str', "val":'1'}]
-        return render_template('results.html', data=stats, items=items)
 
 @app.route("/instructions")
 def instructions():
