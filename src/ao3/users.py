@@ -17,8 +17,12 @@ class User(object):
         if sess is None:
             sess = requests.Session()
         req = sess.get('https://archiveofourown.org')
-        soup = BeautifulSoup(req.text, features='html.parser')
 
+        while len(req.text) < 20 and "Retry later" in req.text:
+            print("timeout... waiting 3 mins and trying again")
+            time.sleep(180)
+            req = self.sess.get(api_url % page_no)
+        soup = BeautifulSoup(req.text, features='html.parser')
         authenticity_token = soup.find('input', {'name': 'authenticity_token'})['value']
 
         req = sess.post('https://archiveofourown.org/users/login', params={
@@ -81,13 +85,13 @@ class User(object):
             print("Finding page: \t" + str(page_no) + " of bookmarks. \t" + str(num_works) + " bookmarks ids found.")
 
             req = self.sess.get(api_url % page_no)
-            soup = BeautifulSoup(req.text, features='html.parser')
 
             #if timeout, wait and try again
             while len(req.text) < 20 and "Retry later" in req.text:
                 print("timeout... waiting 3 mins and trying again")
                 time.sleep(180)
                 req = self.sess.get(api_url % page_no)
+            soup = BeautifulSoup(req.text, features='html.parser')
 
             # The entries are stored in a list of the form:
             #
