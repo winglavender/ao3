@@ -17,7 +17,7 @@ redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
 #q = Queue(connection=conn)
 conn = redis.from_url(redis_url)
 q = Queue('worker-tasks', connection=conn)
-local=False
+local=True
 
 if local:
     app.config.from_pyfile('instance/config.py')
@@ -26,7 +26,8 @@ else:
 
 @app.route("/")
 def home():
-    return render_template("index.html")
+    return render_template("index_down.html")
+    #return render_template("index.html")
 
 @app.route("/form_result", methods=["GET", "POST"])
 def form_result():
