@@ -20,13 +20,13 @@
         <td>{{data.total_words}}</td>
       </tr>
       <tr>
-        <td>Works (including rereads)</td>
+        <td>Works</td>
         <td>{{data.total_fics}}</td>
       </tr>
-      <tr>
+      <!--<tr>
         <td>Works (unique)</td>
         <td>{{data.total_unique_fics}}</td>
-      </tr>
+      </tr>-->
       <tr>
         <td>Relationships</td>
         <td>{{data.total_relationships}}</td>
@@ -70,7 +70,7 @@
     {% endfor %}
      <tr><td colspan="2">&nbsp;</td></tr> 
      <tr class="thead">
-        <td colspan="2">Top Fics</td>
+        <td colspan="2">Top Fics<a href="#footnote">*</a></td>
      </tr>
       {% for row in data.top_fics %}
         <tr>
@@ -90,12 +90,10 @@
     {% endfor %}
     </table>
 
+    <p id="footnote">* These counts may contain rereads from previous years due to how AO3 history information is tracked. For more information about how these stats are computed, see the <a href="{{ url_for('technical') }}">technical details</a>.</p>
+
     <p>
-    You can also download a spreadsheet containing all your data from this year.
-    </p>
-    
-    <p>
-      <a href="/download">Download File</a>
+    You can also download a spreadsheet containing all your data from this year: <a href="/download">Download File</a>
     </p>
     
     <p>

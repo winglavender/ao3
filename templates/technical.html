@@ -14,7 +14,11 @@
       
      <p>A fic counts as "read" according to your AO3 history the minute you open the fic, even if you don't actually read it. There may be some overcounting in your reading stats as a result. </p>
 
-     <p>Top fandoms, tags, ships, fics, etc. are all defined as the most frequent based on the number of visits in your AO3 history, meaning that re-reads of a fic count towards these numbers. However, since multi-chapter fics (appear to) count 1 visit for each chapter opened, these counts have been discounted (by dividing the number of visits in the history by the number of chapters in the fic).</p>
+     <p>Unfortunately, if you read/open a fic more than once, your AO3 history only contains the most recent date that you read the fic. As a result, it is impossible to know whether a fic that you read "2 times, most recently in Oct 2020" was read twice in 2020, or once in 2020 and once in 2019, etc. Furthermore, if you read a fic once in 2020 and once in 2021, its most recent read date will be 2021, and there is no way to know that you also read it in 2020. This is a limitation of the data that is stored in the AO3 history that can't be corrected here.</p>
+
+    <p>Top fandoms, tags, ships, authors are all calculated under the assumption that you visited each of the works in your 2020 history <i>exactly once</i> (even if the number of recorded visits is higher, since we don't know how many of those visits really occurred in 2020).</p>
+
+    <p>Top fics are computed based on the number of recorded visits, but you should keep in mind that some of those visits may have occurred prior to 2020. Since multi-chapter fics (appear to) count 1 visit for each chapter opened, these counts have been discounted (by dividing the number of visits in the history by the number of chapters in the fic).</p>
 
     <a href="{{ url_for('home') }}">Return to main page</a>
   </body>

@@ -13,11 +13,12 @@ import redis
 
 app = Flask(__name__)
 redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
-#local = os.getenv('LOCAL', True)
-#q = Queue(connection=conn)
 conn = redis.from_url(redis_url)
 q = Queue('worker-tasks', connection=conn)
-local=False
+if os.getenv('HEROKU'):
+    local = False
+else:
+    local = True
 
 if local:
     app.config.from_pyfile('instance/config.py')
@@ -26,8 +27,8 @@ else:
 
 @app.route("/")
 def home():
-    return render_template("index_down.html")
-    #return render_template("index.html")
+    #return render_template("index_down.html")
+    return render_template("index.html")
 
 @app.route("/form_result", methods=["GET", "POST"])
 def form_result():
@@ -44,7 +45,11 @@ def form_result():
             st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H:%M:%S')
             filename = 'data/' + username + '_' + year + '_history_' + st + '.csv'
             session["filename"] = filename
-            job = q.enqueue(get_users_results, username, password, int(year), filename, job_timeout=1800) # 30 min timeout
+            # check queue length
+            print(f"qlen {len(q)}")
+            if len(q) >= 50:
+                return render_template("queue.html", qlen=len(q))
+            job = q.enqueue(get_users_results, username, password, int(year), filename, job_timeout=3600) # 1 hour timeout
             print(f"Status: submitted job for user {username} (job id {job.id})")
             print(f"Status: queue status ({len(q)} waiting, {q.finished_job_registry.count} finished, {q.failed_job_registry.count} failed)")
             return redirect(url_for('result', id=job.id))

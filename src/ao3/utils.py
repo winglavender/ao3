@@ -30,7 +30,7 @@ def compute_work_stats(works):
     # todo
     total_words = 0
     total_fics = 0
-    total_unique_fics = 0
+    #total_unique_fics = 0
     fandom_freq = {}
     relationship_freq = {}
     fic_freq = {}
@@ -40,25 +40,25 @@ def compute_work_stats(works):
         tmp = work['chapters'].split('/')
         num_chapters = int(tmp[0])
         num_visits = int(math.ceil(work['num_visits']/num_chapters)) # num recorded visits discounted by number of chapters
-        total_words += work['words'] * num_visits 
-        total_fics += num_visits 
-        total_unique_fics += 1
+        #total_words += work['words'] * num_visits 
+        total_words += work['words']
+        total_fics += 1 
         for rel in work['relationships']:
             if rel not in relationship_freq:
                 relationship_freq[rel] = 0
-            relationship_freq[rel] += num_visits
+            relationship_freq[rel] += 1
         for fandom in work['fandom']:
             if fandom not in fandom_freq:
                 fandom_freq[fandom] = 0
-            fandom_freq[fandom] += num_visits
+            fandom_freq[fandom] += 1
         for author in work['author']:
             if author not in author_freq:
                 author_freq[author] = 0
-            author_freq[author] += num_visits 
+            author_freq[author] += 1
         for tag in work['additional_tags']:
             if tag not in tag_freq:
                 tag_freq[tag] = 0
-            tag_freq[tag] += num_visits 
+            tag_freq[tag] += 1
         fic_freq[(work['title'],tuple(work['author']))] = num_visits
     # remove uninformative results
     fandom_freq.pop('No Fandom', None)
@@ -72,7 +72,7 @@ def compute_work_stats(works):
     stats = {
         'total_words': "{:,}".format(total_words),
         'total_fics': "{:,}".format(total_fics),
-        'total_unique_fics': "{:,}".format(total_unique_fics),
+    #    'total_unique_fics': "{:,}".format(total_unique_fics),
         'total_fandoms': "{:,}".format(len(fandom_freq)),
         'total_relationships': "{:,}".format(len(relationship_freq)),
         'top_fandoms': sorted_tuples_to_dict(fandom_top5),
