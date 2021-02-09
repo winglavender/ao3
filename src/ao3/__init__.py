@@ -13,8 +13,6 @@ class AO3(object):
         self.user = None
         self.session = requests.Session()
 
-#bypasses AO3 login to avoid plaintext credential entry
-#user can input in their current AO3 session ID
 
     def login(self, username, password):
         """Log in to the archive.
@@ -32,14 +30,6 @@ class AO3(object):
             return False, False
         except AttributeError: # successful login, but no history
             return True, False
-        #self.session = self.user.sess
-        #print(self.user)
-        #try:
-        #    rh = self.user.reading_history()
-        #    item = next(rh)
-        #    return True
-        #except AttributeError:
-        #    return False
 
     def __repr__(self):
         return '%s()' % (type(self).__name__)

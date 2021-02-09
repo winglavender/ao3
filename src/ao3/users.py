@@ -43,25 +43,6 @@ class User(object):
 
         self.deleted = 0 #just for curiosity, count how many times deleted or locked works appear
 
-        #req = sess.post('https://archiveofourown.org/user_sessions', params={
-#            'user_session[login]': username,
-#            'user_session[password]': password,
-#        })
-        # Unfortunately AO3 doesn't use HTTP status codes to communicate
-        # results -- it's a 200 even if the login fails.
-#        if 'Please try again' in req.text:
-#            raise RuntimeError(
-#                'Error logging in to AO3; is your password correct?')
-
-        #jar=requests.cookies.RequestsCookieJar()
-        #jar.set('_otwarchive_session',cookie,domain='archiveofourown.org')  #must be done separately bc the set func returns a cookie, not a jar
-        #jar.set('user_credentials','1',domain='archiveofourown.org') #AO3 requires this cookie to be set
-        #sess.cookies=jar
-
-        #self.sess = sess
-
-        #self.deleted = 0 #just for curiosity, count how many times deleted or locked works appear
-
     def __repr__(self):
         return '%s(username=%r)' % (type(self).__name__, self.username)
 
