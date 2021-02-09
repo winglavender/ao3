@@ -376,6 +376,8 @@ class User(object):
             # pointing to the next page.  Otherwise, it contains a <span>
             # tag with the 'disabled' class.
             next_button = soup.find('li', attrs={'class': 'next'})
+            if not next_button: # only 1 page of results
+                break
             if next_button.find('span', attrs={'class': 'disabled'}):
                 break
 
