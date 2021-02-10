@@ -230,6 +230,7 @@ class User(object):
                     if tgt_year and curr_year > tgt_year: # skip this item, but we have to check the rest of the page
                         continue 
                     elif tgt_year and curr_year < tgt_year: # we passed tgt_year, stop iterating completely
+                        print("Stop early")
                         end_iter = True
                         break
                     if "Visited once" in h4_tag.contents[2]:

@@ -49,7 +49,7 @@ def form_result():
             print(f"qlen {len(q)}")
             if len(q) >= 50:
                 return render_template("queue.html", qlen=len(q))
-            job = q.enqueue(get_users_results, username, password, int(year), filename, job_timeout=3600) # 1hr timeout
+            job = q.enqueue(get_users_results, username, password, int(year), filename, job_timeout=7200) # 2 hr timeout
             print(f"Status: submitted job for user {username} (job id {job.id})")
             print(f"Status: queue status ({len(q)} waiting, {q.finished_job_registry.count} finished, {q.failed_job_registry.count} failed)")
             return redirect(url_for('result', id=job.id))
