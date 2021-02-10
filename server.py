@@ -49,7 +49,7 @@ def form_result():
             print(f"qlen {len(q)}")
             if len(q) >= 50:
                 return render_template("queue.html", qlen=len(q))
-            job = q.enqueue(get_users_results, username, password, int(year), filename, job_timeout=1200) # 20 min timeout
+            job = q.enqueue(get_users_results, username, password, int(year), filename, job_timeout=3600) # 1hr timeout
             print(f"Status: submitted job for user {username} (job id {job.id})")
             print(f"Status: queue status ({len(q)} waiting, {q.finished_job_registry.count} finished, {q.failed_job_registry.count} failed)")
             return redirect(url_for('result', id=job.id))
@@ -74,11 +74,11 @@ def result(id):
             return render_template("error.html")
         elif status == 'finished':
             result = job.result
-            if len(result) == 2 and not result[0]: # encountered an error
-                if result[1] == "login": # login error
-                    return render_template('loginerror.html')
-                elif result[1] == "history": # user doesn't have any history
-                    return render_template('no_history.html')
+            if not result: # encountered a login error
+                #if result[1] == "login": # login error
+                return render_template('loginerror.html')
+                #elif result[1] == "history": # user doesn't have any history
+                #    return render_template('no_history.html')
             csv_output, stats, num_works = result
             print(f"Status: job {id} succeeded ({num_works} works)")
             if not os.path.exists('data'):
@@ -94,6 +94,9 @@ def result(id):
                     writer.writerow(row)
             items=[{"name":'name_str', "val":'1'}]
             return render_template('results.html', data=stats, items=items)
+    except AttributeError:
+        traceback.print_exc()
+        return render_template("no_history.html")
     except:
         traceback.print_exc()
         return render_template("error.html")

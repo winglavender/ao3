@@ -7,11 +7,11 @@ import os
 
 def get_users_results(username, password, year, filename):
     api = AO3()
-    login_success, has_history = api.login(username, password)
+    login_success = api.login(username, password)
     if not login_success:
-        return False, "login"
-    elif not has_history:
-        return False, "history"
+        return False
+#    elif not has_history:
+#        return False, "history"
     else:
         print(f"Login success: {login_success}")   
         start_time = time.time()
