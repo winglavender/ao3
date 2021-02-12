@@ -27,7 +27,6 @@ else:
 
 @app.route("/")
 def home():
-    #return render_template("index_down.html")
     return render_template("index.html")
 
 @app.route("/form_result", methods=["GET", "POST"])
@@ -47,8 +46,8 @@ def form_result():
             session["filename"] = filename
             # check queue length
             print(f"qlen {len(q)}")
-            if len(q) >= 50:
-                return render_template("queue.html", qlen=len(q))
+            if len(q) >= 10:
+                return render_template("queue.html")
             job = q.enqueue(get_users_results, username, password, int(year), filename, job_timeout=7200) # 2 hr timeout
             print(f"Status: submitted job for user {username} (job id {job.id})")
             print(f"Status: queue status ({len(q)} waiting, {q.finished_job_registry.count} finished, {q.failed_job_registry.count} failed)")
@@ -75,10 +74,7 @@ def result(id):
         elif status == 'finished':
             result = job.result
             if not result: # encountered a login error
-                #if result[1] == "login": # login error
                 return render_template('loginerror.html')
-                #elif result[1] == "history": # user doesn't have any history
-                #    return render_template('no_history.html')
             csv_output, stats, num_works = result
             print(f"Status: job {id} succeeded ({num_works} works)")
             if not os.path.exists('data'):
@@ -119,5 +115,4 @@ def download():
     return send_file(filename, as_attachment=True)      
       
 if __name__ == "__main__":
-    #app.run(debug=True)
     app.run()

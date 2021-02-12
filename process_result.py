@@ -10,8 +10,6 @@ def get_users_results(username, password, year, filename):
     login_success = api.login(username, password)
     if not login_success:
         return False
-#    elif not has_history:
-#        return False, "history"
     else:
         print(f"Login success: {login_success}")   
         start_time = time.time()
