@@ -205,8 +205,8 @@ class User(object):
             #     </ol>
             #
             ol_tag = soup.find('ol', attrs={'class': 'reading'})
-            if not ol_tag: # something wrong with this page
-                continue
+            if not ol_tag: # something wrong with this page - probably no history is the most likely failure
+                break
             for li_tag in ol_tag.findAll('li', attrs={'class': 'blurb'}):
                 try:
                     work_id = li_tag.attrs['id'].replace('work_', '')
