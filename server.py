@@ -12,7 +12,7 @@ import redis
 #from worker import conn
 
 app = Flask(__name__)
-redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
+redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379')
 conn = redis.from_url(redis_url)
 q = Queue('worker-tasks', connection=conn)
 if os.getenv('HEROKU'):
