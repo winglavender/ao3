@@ -23,13 +23,9 @@ class AO3(object):
         try:
             self.user = User(username, password, sess=self.session)
             print(self.user)
-#            rh = self.user.reading_history()
-#            item = next(rh)
             return True
         except RuntimeError: # failed login
             return False
-        #except AttributeError: # successful login, but no history
-        #    return True, False
 
     def __repr__(self):
         return '%s()' % (type(self).__name__)

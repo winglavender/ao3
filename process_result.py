@@ -18,6 +18,6 @@ def get_users_results(username, password, year, filename):
         stats = utils.compute_work_stats(works_list)
         stats['year'] = year
         print("--- Runtime: %s minutes ---" % ((time.time() - start_time)/60))
-        print(stats)
+        print(f"Finished username {username} ({len(works_list)} works in history)")
         return csv_output, stats, len(works_list)
   
