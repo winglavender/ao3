@@ -11,7 +11,14 @@
     </h1>
 
     <p>
-        Your account does not contain any history from {{year}}.
+        Your account does not contain any history from {{year}} on the specified pages. If that sounds wrong, please double-check that</p>
+
+        <ul>
+        <li>you have history enabled</li>
+        <li>the start and end pages correspond to your {{year}} reading history</li>
+        </ul>
+
+        <p>More information about how to specify the start and end pages is available <a href="{{ url_for('page_instructions')}}">here</a>.
     </p>
     
     <a href="{{ url_for('home') }}">Return to main page</a>

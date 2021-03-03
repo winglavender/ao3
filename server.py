@@ -29,6 +29,15 @@ else:
 def home():
     return render_template("index.html")
 
+def validate_pages(start_page, end_page):
+    if end_page < start_page:
+        return False
+    elif end_page - start_page > 200:
+        return False
+    elif end_page <= 0 or start_page <= 0:
+        return False
+    return True
+
 @app.route("/form_result", methods=["GET", "POST"])
 def form_result():
     if request.method == "POST":
@@ -37,6 +46,9 @@ def form_result():
             username = userdata["username"]
             password = userdata["password"]
             year = userdata["year"]
+            are_pages_valid = validate_pages(int(userdata["start_page"]), int(userdata["end_page"]))
+            if not are_pages_valid:
+                return render_template('page_error.html')
             session["username"] = username
             session["password"] = password 
             session["year"] = year
@@ -48,7 +60,7 @@ def form_result():
             print(f"qlen {len(q)}")
             if len(q) >= 10:
                 return render_template("queue.html")
-            job = q.enqueue(get_users_results, username, password, int(year), filename, job_timeout=1800) # 30 min timeout
+            job = q.enqueue(get_users_results, username, password, int(year), int(userdata["start_page"]), int(userdata["end_page"]), filename, job_timeout=1800) # 30 min timeout
             print(f"Status: submitted job for user {username} (job id {job.id})")
             print(f"Status: queue status ({len(q)} waiting, {q.finished_job_registry.count} finished, {q.failed_job_registry.count} failed)")
             return redirect(url_for('result', id=job.id))
@@ -113,6 +125,10 @@ def contact():
 def download():
     filename = session.get("filename")
     return send_file(filename, as_attachment=True)      
+
+@app.route("/page_instructions")
+def page_instructions():
+    return render_template("page_instructions.html")
       
 if __name__ == "__main__":
     app.run()

@@ -16,9 +16,6 @@
     <p>
     This webapp downloads the data from your Archive Of Our Own history for a particular year and produces a summary of what you read (total words read, most visited fics, most common ships and tags, etc). It also generates a spreadsheet that you can download to see your reading history in more detail.</p>
 
-    <p>
-    IMPORTANT NOTE! If your 2021-2020 reading history exceeds a couple hundred pages, the app may time out before finishing your results. This limitation exists so that the app doesn't overwhelm AO3 with requests and everyone has a chance to request their results.</p>
-
     <div id="content">
     <p>
       <a href="{{ url_for('instructions') }}">Instructions</a> | <a href="{{url_for('technical')}}">Technical Details</a> | <a href="{{ url_for('contact') }}">Contact</a>
@@ -27,14 +24,14 @@
     
     <form method="post" action="/form_result">
         <label for="username">Username:</label>
-        <input type="text" id="username" name="username"><br><br>
+        <input type="text" id="username" name="username" required><br><br>
         <label for="Password">Password:</label>
-        <input type="text" id="password" name="password"><br><br>
+        <input type="text" id="password" name="password" required><br><br>
         <label for="year">Year:</label>
         <select name="year" id="year">
-            <!--<option value="2021">2021</option>-->
+            <option value="2021">2021</option>
             <option value="2020">2020</option>
-<!--            <option value="2019">2019</option>
+            <option value="2019">2019</option>
             <option value="2018">2018</option>
             <option value="2017">2017</option>
             <option value="2016">2016</option>
@@ -45,8 +42,14 @@
             <option value="2011">2011</option>
             <option value="2010">2010</option>
             <option value="2009">2009</option>
-            <option value="2008">2008</option>-->
-        </select><br><br>
+            <option value="2008">2008</option>
+        </select> 
+        <label for="start_page">Start Page:</label>
+        <input type="text" id="start_page" name="start_page" size="4" required>
+        <label for="end_page">End Page:</label>
+        <input type="text" id="end_page" name="end_page" size="4" required>
+        <a href="{{ url_for('page_instructions') }}">What does this mean?</a>
+        <br><br>
       <input type="submit" name="submit" value="Get Results">
     </form>
   </div>

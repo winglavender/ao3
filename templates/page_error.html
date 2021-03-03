@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AO3 Year in Review</title>
+    <link rel="stylesheet" type="text/css" href="../static/style.css">
+  </head>
+  <body>
+    <h1>
+      Error Indexing Start and End Pages
+    </h1>
+
+    <p>
+        There was an issue with the start/end page indices that you specified. Please double check that</p>
+
+        <ul>
+            <li>both the start page and the end page are greater than 0</li>
+            <li>the end page index is larger than the start page index</li>
+            <li>the range specified by the start and end pages does not cover more than 200 pages</li>
+        </ul>
+
+        <p>More information on how to specify start and end pages is available <a href="{{ url_for('page_instructions') }}">here</a>.
+    </p>
+    
+    <a href="{{ url_for('home') }}">Return to main page</a>
+        
+  </body>
+</html>

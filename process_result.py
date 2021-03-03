@@ -5,7 +5,7 @@ import time
 import csv
 import os
 
-def get_users_results(username, password, year, filename):
+def get_users_results(username, password, year, start_page, end_page, filename):
     api = AO3()
     login_success = api.login(username, password)
     if not login_success:
@@ -13,7 +13,7 @@ def get_users_results(username, password, year, filename):
     else:
         print(f"Login success: {login_success}")   
         start_time = time.time()
-        works_list = api.user.get_history_list(year)
+        works_list = api.user.get_history_list(year, start_page, end_page)
         csv_output = api.user.get_history_csv(works_list)
         stats = utils.compute_work_stats(works_list)
         stats['year'] = year

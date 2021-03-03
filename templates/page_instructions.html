@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AO3 Year in Review</title>
+    <link rel="stylesheet" type="text/css" href="../static/style.css" />
+  </head>
+  <body>
+    <h1>
+      What are the start and end pages? 
+    </h1>
+
+    <p>You need to provide the app with the index of the first and last page of your AO3 history for the year that you specified. If you want a summary of the fics that you read in 2020, you need to click through the pages of your AO3 history to find a) the page that contains the last fic that you read in 2020 (this is the start page), and b) the page that contains the first fic that you read in 2020 (this is the end page). The app will only look at the pages in this range.</p>
+
+    <p>For example, if the first 5 pages of your history are all fics that you read in 2021, and your 2020 history starts on page 6, you should type <b>6</b> in the "Start Page" field. If your 2020 history continues for 15 pages and the last page that contains a fic you read in 2020 is on page 21, then type <b>21</b> in the "End Page" field.</p>
+
+    <p>In order to keep wait times low for all users, you cannot retrieve more than 200 pages of history at a time. If your history for a particular year spans more than 200 pages, then you can try splitting it up into multiple chunks, which will give you a different summary result for each chunk (you can manually combine the output spreadsheet yourself if you want). So for example, if your 2020 history starts on page 4 and ends on page 306, you could run the app once with Start Page = 4 and End Page = 150, and again with Start Page = 151 and End Page = 306.</p>
+
+    <a href="{{ url_for('home') }}">Return to main page</a>
+  </body>
+</html>

@@ -162,7 +162,7 @@ class User(object):
 
         return bookmarks
 
-    def reading_history(self, tgt_year=None):
+    def reading_history(self, tgt_year=None, start_page=None, end_page=None):
         """Returns a list of articles in the user's reading history.
 
         This requires the user to turn on the Viewing History feature.
@@ -179,10 +179,14 @@ class User(object):
             'https://archiveofourown.org/users/%s/readings?page=%%d' %
             self.username)
         print("Processing", end=' ', flush=True)
-        for page_no in itertools.count(start=1):
+
+        if not start_page:
+            start_page = 1
+
+        found_valid_work = False
+        for page_no in itertools.count(start=start_page):
             req = self.sess.get(api_url % page_no)
             print(page_no, end=' ', flush=True)
-            #print("Cumulative deleted works encountered: "+str(self.deleted))
             end_iter = False # check whether we've passed the tgt_year
 
             #if timeout, wait and try again
@@ -206,6 +210,7 @@ class User(object):
             #
             ol_tag = soup.find('ol', attrs={'class': 'reading'})
             if not ol_tag: # something wrong with this page - probably no history is the most likely failure
+                print("Probably not a valid history page")
                 break
             for li_tag in ol_tag.findAll('li', attrs={'class': 'blurb'}):
                 try:
@@ -233,6 +238,7 @@ class User(object):
                         print("Stop early")
                         end_iter = True
                         break
+                    found_valid_work = True # found at least one work from tgt_year
                     if "Visited once" in h4_tag.contents[2]:
                         numvisits='1' #TODO: probably want to change these int values to ints instead of strings...
                     else:
@@ -349,7 +355,14 @@ class User(object):
                         raise
 
             # check if this is the last page we want to process
-            if end_iter:
+            if end_iter: # we've passed the tgt_year
+                print("Reached the end of the year")
+                break
+            if end_page and page_no == end_page: # we've reached the specified end_page
+                print("Reached the specified end page")
+                break
+            if not found_valid_work: # we didn't find a single work from tgt_year on this page
+                print("No works from target year foundo n this page")
                 break
 
             # The pagination button at the end of the page is of the form
@@ -361,8 +374,10 @@ class User(object):
             # tag with the 'disabled' class.
             next_button = soup.find('li', attrs={'class': 'next'})
             if not next_button: # only 1 page of results
+                print("No further pages")
                 break
             if next_button.find('span', attrs={'class': 'disabled'}):
+                print("No further pages")
                 break
 
     def get_history_csv(self, works):
@@ -381,12 +396,12 @@ class User(object):
             rows.append(row)
         return header, rows
 
-    def get_history_list(self, year=None):
+    def get_history_list(self, year, start_page, end_page):
         """ calls reading_history and formas the results into a list """
         
         attributes = ['id', 'url', 'visit_date', 'num_visits', 'title', 'author', 'fandom', 'rating', 'warnings', 'relationships', 'characters', 'additional_tags', 'words', 'chapters', 'comments', 'kudos', 'bookmarks', 'hits', 'published_date']
         works = []
-        for work in self.reading_history(year):
+        for work in self.reading_history(year, start_page, end_page):
             works.append(work)
         return works
 
