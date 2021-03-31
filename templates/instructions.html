@@ -14,18 +14,36 @@
       Provide Your AO3 Login Info
     </h2>
 
+<a id="cookie"></a>
     <p>
-      In order to retrieve your stats from AO3, you will need to provide your AO3 username and password. This information is used once to access your specific AO3 history, and is not stored or saved in any way. You can see the full site code at <a href="https://github.com/winglavender/ao3/tree/main">Github</a> if you want to know more. 
-    </p>
+     In order to retrieve your stats from AO3, you will need to provide your username and your _otwarchive_session cookie to fill in the "Username" and "Cookie" fields. The cookie value is used instead of your password.</p>
+
+
+<p>You can find your cookie values as follows if you are using the Chrome browser on a computer.</p> 
+
+    <ol>
+      <li>
+        Load any archiveofyourown.org page while logged in to your account.
+      </li>
+      <li>
+        Right click anywhere on the page and select "Inspect" from the menu.
+      </li>
+      <li>On the upper menu bar, click Application.</li>
+      <li>
+        Find the row in the table with Name _otwarchive_session. Copy the contents of Value into the "Cookie" field.
+      </li>
+    </ol>
+
+<p>If you are using another browser, you should be able to follow a similar process to find your _otwarchive_session cookie value (in Safari, the steps are: right click, Inspect Element, Storage, Cookies). However, if you are using a mobile device, you will probably not be able to view the cookie value in your browser, and you should try this on a computer instead.</p>
+
+<p> If the app returns no results unexpectedly, one possible reason is that the cookie value was incorrect. Double-check that you followed the above steps to copy the correct cookie value into the Cookie field.</p>
 
     <h2>
       Wait for App to Run
     </h2>
 
     <p>
-      In order to build a summary, the app has to load every page in your history for the specified year. This takes time,
-      especially if you read a lot of fics that year. It may take 5 minutes or
-      more to download 100 pages of history, for example. It may take longer if many people are using the app simultaneously. Please be patient!
+      In order to build a summary, the app has to load every page in your history for the specified year. This takes time, especially if you read a lot of fics that year. It may take 5 minutes or more to download 100 pages of history, for example. Please be patient!
     </p>
 
     <a href="{{ url_for('home') }}">Return to main page</a>

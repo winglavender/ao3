@@ -5,9 +5,9 @@ import time
 import csv
 import os
 
-def get_users_results(username, password, year, start_page, end_page, filename):
+def get_users_results(username, cookie, year, start_page, end_page, filename):
     api = AO3()
-    login_success = api.login(username, password)
+    login_success = api.login(username, cookie)
     if not login_success:
         return False
     else:

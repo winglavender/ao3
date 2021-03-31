@@ -12,35 +12,14 @@ from .works import Work
 class User(object):
 
 #   instead of passing plaintext passwords, pass the contents of the _otwarchive_session cookie!
-    def __init__(self, username, password, sess=None):
+    def __init__(self, username, cookie):
         self.username = username
-        if sess is None:
-            sess = requests.Session()
-        req = sess.get('https://archiveofourown.org')
-
-        while len(req.text) < 20 and "Retry later" in req.text:
-            print("timeout... waiting 3 mins and trying again")
-            time.sleep(180)
-            req = sess.get('https://archiveofourown.org')
-        soup = BeautifulSoup(req.text, features='html.parser')
-        authenticity_token = soup.find('input', {'name': 'authenticity_token'})['value']
-
-        req = sess.post('https://archiveofourown.org/users/login', params={
-            'authenticity_token': authenticity_token,
-            'user[login]': username,
-            'user[password]': password,
-            'user[remember_me]': '1',
-            'commit': 'Log in',
-            'utf8': u'\x2713',
-        })
-        # Unfortunately AO3 doesn't use HTTP status codes to communicate
-        # results -- it's a 200 even if the login fails.
-        if 'Please try again' in req.text:
-            raise RuntimeError(
-                'Error logging in to AO3; is your password correct?')
-
+        sess = requests.Session()
+        jar=requests.cookies.RequestsCookieJar()
+        jar.set('_otwarchive_session',cookie,domain='archiveofourown.org')  #must be done separately bc the set func returns a cookie, not a jar
+        jar.set('user_credentials','1',domain='archiveofourown.org') #AO3 requires this cookie to be set
+        sess.cookies=jar
         self.sess = sess
-
         self.deleted = 0 #just for curiosity, count how many times deleted or locked works appear
 
     def __repr__(self):
