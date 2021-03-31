@@ -39,6 +39,8 @@ def compute_work_stats(works):
     for work in works:
         tmp = work['chapters'].split('/')
         num_chapters = int(tmp[0])
+        if num_chapters == 0:
+            num_chapters = 1
         num_visits = int(math.ceil(work['num_visits']/num_chapters)) # num recorded visits discounted by number of chapters
         #total_words += work['words'] * num_visits 
         total_words += work['words']
