@@ -15,11 +15,10 @@
 
         <ul>
         <li>you have history enabled</li>
-        <li>the start and end pages correspond to your {{year}} reading history</li>
+        <li>the start and end pages correspond to your {{year}} reading history (see <a href="{{url_for('page_instructions')}}">instructions</a> for more information</li>
+        <li>you provided the correct cookie value (NOT your password) along with your username</li>
         </ul>
 
-        <p>More information about how to specify the start and end pages is available <a href="{{ url_for('page_instructions')}}">here</a>.
-    </p>
     
     <a href="{{ url_for('home') }}">Return to main page</a>
         

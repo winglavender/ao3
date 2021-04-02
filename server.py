@@ -105,7 +105,7 @@ def result(id):
             return render_template('results.html', data=stats, items=items)
     except AttributeError:
         traceback.print_exc()
-        return render_template("no_history.html")
+        return render_template("no_results.html")
     except:
         traceback.print_exc()
         return render_template("error.html")
