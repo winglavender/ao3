@@ -45,6 +45,10 @@ def form_result():
             userdata = dict(request.form)
             username = userdata["username"]
             cookie = userdata["cookie"]
+            if cookie.startswith('_otwarchive_session'):
+                cookie = cookie.replace('_otwarchive_session','')
+                cookie = cookie.replace('\\t', '')
+                cookie = cookie.replace('\t', '')
             year = userdata["year"]
             are_pages_valid = validate_pages(int(userdata["start_page"]), int(userdata["end_page"]))
             if not are_pages_valid:
