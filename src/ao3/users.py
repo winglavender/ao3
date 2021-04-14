@@ -165,8 +165,10 @@ class User(object):
 
         found_valid_work = False
         for page_no in itertools.count(start=start_page):
-            req = self.sess.get(api_url % page_no)
-            req.encoding='utf-8'
+            try:
+                req = self.sess.get(api_url % page_no)
+            except UnicodeEncodeError:
+                continue
             print(page_no, end=' ', flush=True)
             end_iter = False # check whether we've passed the tgt_year
 
@@ -174,8 +176,10 @@ class User(object):
             while len(req.text) < 20 and "Retry later" in req.text:
                 print("timeout... waiting 3 mins and trying again")
                 time.sleep(180) 
-                req = self.sess.get(api_url % page_no)
-                req.encoding='utf-8'
+                try:
+                    req = self.sess.get(api_url % page_no)
+                except UnicodeEncodeError:
+                    continue
 
             soup = BeautifulSoup(req.text, features='html.parser')
             # The entries are stored in a list of the form:
